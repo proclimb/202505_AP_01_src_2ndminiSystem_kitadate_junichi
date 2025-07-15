@@ -1,0 +1,693 @@
+/*!
+ * Bootstrap v3.3.5 (http://getbootstrap.com)
+ * Copyright 2011-2015 Twitter, Inc.
+ * Licensed under MIT (https://github.com/twbs/bootstrap/blob/master/LICENSE)
+ */
+/*! normalize.css v3.0.3 | MIT License | github.com/necolas/normalize.css */
+/*上記から適用されていたスタイルのみを抜粋、改編
+ *各スタイルのコメントは元ファイルでの該当行数
+*/
+/* 7 */
+html {
+    font-family: sans-serif;
+    -webkit-text-size-adjust: 100%;
+    -ms-text-size-adjust: 100%
+}
+
+/* 13 */
+body {
+    margin: 0
+}
+
+/* 51 */
+a {
+    background-color: transparent
+}
+
+/* 134~138 */
+button,
+input,
+optgroup,
+select,
+textarea {
+    margin: 0;
+    font: inherit;
+    color: inherit
+}
+
+/* 144 */
+button {
+    overflow: visible
+}
+
+/* 148,149 */
+button,
+select {
+    text-transform: none
+}
+
+/* 153~156 */
+button,
+html input[type=button],
+input[type=reset],
+input[type=submit] {
+    -webkit-appearance: button;
+    cursor: pointer
+}
+
+/* 220 */
+table {
+    border-spacing: 0;
+    border-collapse: collapse
+}
+
+/* 225,226 */
+td,
+th {
+    padding: 0
+}
+
+/*1387*/
+* {
+    -webkit-box-sizing: border-box;
+    -moz-box-sizing: border-box;
+    box-sizing: border-box
+}
+
+/* 1393,1394 */
+:after,
+:before {
+    -webkit-box-sizing: border-box;
+    -moz-box-sizing: border-box;
+    box-sizing: border-box
+}
+
+/*1400*/
+html {
+    font-size: 10px;
+    -webkit-tap-highlight-color: rgba(0, 0, 0, 0)
+}
+
+/* 1405 */
+body {
+    font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
+    font-size: 14px;
+    line-height: 1.42857143;
+    color: #333;
+    background-color: #fff
+}
+
+/* 1413~1416 */
+button,
+input,
+select,
+textarea {
+    font-family: inherit;
+    font-size: inherit;
+    line-height: inherit
+}
+
+/* 1511~1522 */
+.h1,
+.h2,
+.h3,
+.h4,
+.h5,
+.h6,
+h1,
+h2,
+h3,
+h4,
+h5,
+h6 {
+    font-family: inherit;
+    font-weight: 500;
+    line-height: 1.1;
+    color: inherit
+}
+
+/* 1638 */
+p {
+    margin: 0 0 10px
+}
+
+/* 2972 */
+table {
+    background-color: transparent
+}
+
+/* 3266 */
+label {
+    display: inline-block;
+    max-width: 100%;
+    margin-bottom: 5px;
+    font-weight: 700
+}
+
+/* 8343 */
+body>div:first-child {
+    background-color: #8dc21f;
+}
+
+/* 8337 */
+body {
+    background: #f7f6f1;
+    color: #333333;
+    font-family: 'Lucida Grande', Arial, 'Hiragino Kaku Gothic Pro', Meiryo, 'メイリオ', sans-serif;
+}
+
+/* 8347 */
+body>div:nth-child(2) {
+    box-shadow: 0 1px 1px 0 rgba(5, 0, 1, 0.2);
+    background: #fff;
+    margin-bottom: 50px;
+}
+
+/* 8353 */
+body>div:nth-child(3) {
+    width: 760px;
+    padding-right: 15px;
+    padding-left: 15px;
+    margin-right: auto;
+    margin-left: auto;
+}
+
+/* 8361 */
+body>div>h1 {
+    color: #fff;
+    font-size: 29px;
+    width: 80%;
+    padding-right: 15px;
+    padding-left: 15px;
+    margin: 0 auto;
+    height: 65px;
+    line-height: 65px;
+}
+
+/* 8372 */
+body>div>h2 {
+    font-size: 20px;
+    width: 80%;
+    padding-right: 15px;
+    padding-left: 15px;
+    margin: 0 auto;
+    height: 50px;
+    line-height: 50px;
+}
+
+/* 8386 */
+form {
+    border: solid 1px #ddd;
+    padding: 30px;
+    -moz-border-radius: 5px;
+    -webkit-border-radius: 5px;
+    border-radius: 5px;
+    background-color: #fff;
+    margin-bottom: 50px;
+}
+
+/* 8396 */
+form h1 {
+    letter-spacing: 2px;
+    margin: 0 0 15px;
+    font-size: 22px;
+    font-weight: bold;
+    color: #333333;
+}
+
+/* 8404 */
+body>div:nth-child(3)>div {
+    border: solid 1px #ddd;
+    padding: 30px;
+    -moz-border-radius: 5px;
+    -webkit-border-radius: 5px;
+    border-radius: 5px;
+    background-color: #fff;
+}
+
+/* 8422 */
+form>div {
+    border-radius: 3px;
+    background-color: #f6f6f6;
+    vertical-align: middle;
+    border: 1px solid #dddddd;
+    margin-top: 20px;
+    margin-bottom: 15px;
+    padding: 20px;
+}
+
+/* 8432 */
+form>div>div {
+    border-radius: 3px;
+    padding: 10px 20px;
+}
+
+/* 8443,8444 */
+form>div>div:before,
+form>div>div:after {
+    display: table;
+    content: " ";
+    clear: both;
+}
+
+/* 8450~8453 */
+form>div input[type=text],
+form>div input[type=email],
+form>div textarea,
+form>div select {
+    display: block;
+    min-width: 405px;
+    max-width: 405px;
+    float: right;
+    height: 38px;
+    padding: 6px 12px;
+    font-size: 14px;
+    line-height: 1.42857143;
+    color: #555;
+    background-color: #fff;
+    background-image: none;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    -webkit-box-shadow: inset 0 1px 1px rgba(0, 0, 0, .075);
+    box-shadow: inset 0 1px 1px rgba(0, 0, 0, .075);
+    -webkit-transition: border-color ease-in-out .15s, -webkit-box-shadow ease-in-out .15s;
+    -o-transition: border-color ease-in-out .15s, box-shadow ease-in-out .15s;
+    transition: border-color ease-in-out .15s, box-shadow ease-in-out .15s;
+    margin: 0 15px;
+}
+
+/* 新規追加 */
+form>div input[type=text].half-width {
+    display: block;
+    min-width: 244px;
+    max-width: 244px;
+    float: right;
+    height: 38px;
+    padding: 6px 12px;
+    font-size: 14px;
+    line-height: 1.42857143;
+    color: #555;
+    background-color: #fff;
+    background-image: none;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    -webkit-box-shadow: inset 0 1px 1px rgba(0, 0, 0, .075);
+    box-shadow: inset 0 1px 1px rgba(0, 0, 0, .075);
+    -webkit-transition: border-color ease-in-out .15s, -webkit-box-shadow ease-in-out .15s;
+    -o-transition: border-color ease-in-out .15s, box-shadow ease-in-out .15s;
+    transition: border-color ease-in-out .15s, box-shadow ease-in-out .15s;
+    margin: 0px 21px;
+}
+
+/* 8479 */
+input[type=radio] {
+    margin-left: 25px;
+    margin-top: 8px;
+
+}
+
+/* 8485 */
+body>div label {
+    margin-bottom: 0;
+    text-align: right;
+    width: 145px;
+    float: left;
+    position: relative;
+    min-height: 1px;
+    padding-right: 15px;
+    padding-left: 15px;
+    position: relative;
+}
+
+/* 8497 */
+body>div label span {
+    color: #fff;
+    background: #fb3b6f;
+    display: inline-block;
+    padding: 2px 5px;
+    font-size: 10px;
+    font-size: 1rem;
+    -moz-border-radius: 2px;
+    -webkit-border-radius: 2px;
+    border-radius: 2px;
+    position: absolute;
+    right: 16px;
+    top: 19px;
+}
+
+/* 8521 */
+button {
+    display: block;
+    padding: 6px 12px;
+    margin-bottom: 0;
+    font-size: 14px;
+    font-weight: 400;
+    line-height: 1.42857143;
+    text-align: center;
+    white-space: nowrap;
+    vertical-align: middle;
+    -ms-touch-action: manipulation;
+    touch-action: manipulation;
+    cursor: pointer;
+    -webkit-user-select: none;
+    -moz-user-select: none;
+    -ms-user-select: none;
+    user-select: none;
+    background-image: none;
+    border: 1px solid transparent;
+    border-radius: 4px;
+    margin: 0 auto;
+}
+
+/* 8566 */
+a {
+    text-decoration: none;
+}
+
+/* 8580 */
+/* 【1】button 要素を中央寄せにする（固定 margin → auto） */
+button {
+    /* 旧: margin: 10px 275px; を削除して下記に変更 */
+    display: block;
+    padding: 10px 13px 11px;
+    margin: 20px auto;
+    /* ← 画面中央に水平寄せ */
+    font-size: 18px;
+    cursor: pointer;
+    font-weight: bold;
+    border-radius: 4px;
+    line-height: 1;
+    text-align: center;
+    vertical-align: middle;
+    white-space: nowrap;
+    border: 1px solid #0093c9;
+    color: #ffffff;
+    background: #009ecf;
+    box-shadow: 0px 1px 1px rgba(0, 0, 0, 0.28),
+        inset 0px 2px 0px -1px #10a4d2;
+}
+
+/* 8597 */
+input[type=button] {
+    /* 旧: margin-left / margin-right を削除して下記に変更 */
+    display: block;
+    padding: 10px 13px 11px;
+    margin: 20px auto;
+    /* ← ここも中央寄せ */
+    font-size: 18px;
+    cursor: pointer;
+    font-weight: bold;
+    border-radius: 4px;
+    line-height: 1;
+    text-align: center;
+    vertical-align: middle;
+    white-space: nowrap;
+    border: 1px solid #c3c3c3;
+    color: #7c7c7c;
+    background: #ffffff;
+    text-shadow: 0px 1px 1px rgba(0, 0, 0, 0.13);
+    -moz-box-shadow: 0px 1px 1px rgba(0, 0, 0, 0.28);
+    -webkit-box-shadow: 0px 1px 1px rgba(0, 0, 0, 0.28);
+    box-shadow: 0px 1px 1px rgba(0, 0, 0, 0.28);
+}
+
+/* 8623~8625 */
+input+div,
+select+div,
+textarea+div {
+    float: right;
+    width: 420px;
+    color: red;
+    margin-bottom: -10px;
+}
+
+/* 8632 */
+.error-form {
+    border-color: #fb9a93 !important;
+}
+
+/* 8636 */
+.error-msg {
+    color: red;
+}
+
+/* 新規追加 */
+.error-msg2 {
+    color: red;
+    margin-left: 166px;
+}
+
+.birth-selects {
+    display: flex;
+    gap: 0px;
+    padding: 0px 10px;
+}
+
+.birth-selects select.form-control {
+    flex: 1;
+    min-width: 110px;
+    margin: 0px 11px;
+    max-width: 110px;
+}
+
+.postal-row {
+    display: flex;
+}
+
+button.postal-code-search {
+    padding: 8px 12px;
+    background-color: #6C757D;
+    color: #fff;
+    height: 37px;
+    align-items: center;
+    font-size: 14px;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    white-space: nowrap;
+    background: #6C757D;
+    transition: background-color 0.2s ease;
+    margin: unset;
+    box-shadow: 0px 1px 1px rgba(0, 0, 0, 0.28),
+        inset 0px 2px 0px -1px #6C757D;
+}
+
+label.gender {
+    text-align: unset;
+    padding: unset;
+    margin: 1px 0px 4px 0px;
+    width: unset;
+    font-weight: normal;
+}
+
+/* 新規追加 */
+input.readonly-field[type="text"] {
+    background-color: #eee !important;
+    /* 薄いグレー */
+    color: #666 !important;
+    /* テキストも薄く */
+    border: 1px solid #ccc !important;
+    cursor: not-allowed !important;
+}
+
+/* Csvpreview.php 用の追加スタイル */
+.csv-btn {
+    display: inline-block;
+    padding: 8px 16px;
+    margin: 10px 5px 20px 0;
+    background-color: #28a745;
+    color: #fff;
+    text-decoration: none;
+    border-radius: 4px;
+    font-size: 14px;
+}
+
+.csv-btn:hover {
+    background-color: #218838;
+}
+
+.csv-btn-cancel {
+    display: inline-block;
+    padding: 8px 16px;
+    margin: 10px 5px 20px 0;
+    background-color: #dc3545;
+    color: #fff;
+    text-decoration: none;
+    border-radius: 4px;
+    font-size: 14px;
+}
+
+.csv-btn-cancel:hover {
+    background-color: #c82333;
+}
+
+/* -------------------------------------------------------------------
+   ↓ ここから変更・追加箇所
+   ------------------------------------------------------------------- */
+
+/* 【3】共通テーブル（dashboard.php と Csvpreview.php で使い回し可） */
+.common-table {
+    border-collapse: collapse;
+    width: 80%;
+    /* ← 幅を 100% → およそ 80% に縮小 */
+    margin: 20px auto;
+    /* ← 上下マージン 20px、中央寄せ */
+}
+
+.common-table th,
+.common-table td {
+    border: 1px solid #999;
+    padding: 6px 10px;
+    text-align: left;
+}
+
+.common-table th {
+    background-color: #f0f0f0;
+}
+
+/* 【4】Csvpreview の生 CSV 部分（<pre>）を中央寄せ・幅 80% に */
+.csv-pre {
+    background-color: #fafafa;
+    border: 1px solid #ddd;
+    padding: 8px;
+    white-space: pre-wrap;
+    word-break: break-all;
+
+    width: 80%;
+    /* ← 横幅 80% */
+    margin: 20px auto;
+    /* ← 中央寄せ */
+}
+
+/* 【5】Csvpreview のテーブル（.csv-table）を 80% に変更し、common-table を継承 */
+.csv-table {
+    border-collapse: collapse;
+    width: 80%;
+    /* ← 横幅 80% に */
+    margin: 20px auto;
+    /* ← 中央寄せ */
+}
+
+.csv-table th,
+.csv-table td {
+    border: 1px solid #999;
+    padding: 6px 10px;
+    text-align: left;
+}
+
+.csv-table th {
+    background-color: #f0f0f0;
+}
+
+/* 【6】Csvpreview 用の OK / キャンセル ボタンも中央寄せに変更 */
+.csv-btn,
+.csv-btn-cancel {
+    display: inline-block;
+    /* ← ブロック要素化 */
+    padding: 8px 16px;
+    margin: 20px auto;
+    /* ← すべて中央寄せ */
+    color: #fff;
+    text-decoration: none;
+    border-radius: 4px;
+    font-size: 14px;
+    text-align: center;
+    cursor: pointer;
+}
+
+.csv-btn {
+    background-color: #28a745;
+}
+
+.csv-btn:hover {
+    background-color: #218838;
+}
+
+.csv-btn-cancel {
+    background-color: #dc3545;
+}
+
+.csv-btn-cancel:hover {
+    background-color: #c82333;
+}
+
+/* 【7】input.php / edit.php のフォーム下部にあるボタンを中央寄せしたい場合は、
+        上記の button, input[type=button] の指定のみでカバーできます */
+
+/* 【8】補足: もし <a class="btn"> をそのまま使用している箇所があれば、
+        下記のように .btn クラスでも中央寄せしておくと共通運用しやすいです */
+
+.btn {
+    display: inline-block;
+    padding: 10px 13px 11px;
+    font-size: 18px;
+    font-weight: bold;
+    color: #ffffff;
+    background: #009ecf;
+    border-radius: 4px;
+    border: 1px solid #0093c9;
+    box-shadow: 0px 1px 1px rgba(0, 0, 0, 0.28),
+        inset 0px 2px 0px -1px #10a4d2;
+    text-decoration: none;
+    margin: 20px auto;
+    /* ← ここでボタンリンクも中央に */
+    text-align: center;
+    cursor: pointer;
+}
+
+.btn:hover {
+    background-color: #007ea8;
+}
+
+/* ---------------------------------------------------
+   dashboard.php 用の追加スタイル
+   --------------------------------------------------- */
+
+.name-sreach form {
+    border: solid 1px #ddd;
+    padding: 30px;
+    width: 80%;
+    -moz-border-radius: 5px;
+    -webkit-border-radius: 5px;
+    border-radius: 5px;
+    background-color: #fff;
+    margin-bottom: 50px;
+}
+
+/* 検索結果件数表示 */
+.result-count {
+    font-size: 14px;
+    margin-top: 10px;
+    margin-bottom: 0;
+    /* テーブル幅 80% の左上に収まるように上マージン少し、左寄せ */
+}
+
+/* ページネーションリンク */
+.pagination a {
+    margin: 0 5px;
+    text-decoration: none;
+    color: #009ecf;
+    font-weight: bold;
+}
+
+.pagination strong {
+    margin: 0 5px;
+    color: #333;
+    font-weight: bold;
+}
+
+/* ソートリンク用：a要素のデフォルト下線を消す */
+.common-table th a {
+    text-decoration: none;
+    color: inherit;
+}
+
+/* クリック時に色を変えたい場合は以下を追加 */
+
+.common-table th a:hover {
+    color: #007ea8;
+}
+
+/* -------------------------------------------------------------------
+   ↑ ここまで変更・追加箇所
+   ------------------------------------------------------------------- */
