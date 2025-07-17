@@ -230,7 +230,7 @@ session_destroy();
                     <input
                         type="text"
                         name="tel"
-                        placeholder="例）000-000-0000"
+                        placeholder="例）000-0000-0000"
                         value="<?= htmlspecialchars($old['tel']) ?>">
                     <?php if (isset($error_message['tel'])) : ?>
                         <div class="error-msg">
