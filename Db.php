@@ -13,9 +13,9 @@
  */
 // 1.DB接続設定
 $host = 'localhost';
-$dbname = '****';
-$user = '****';
-$password = '****';
+$dbname = 'minisystem_relation';
+$user = 'root';
+$password = 'proclimb';
 $charset = 'utf8mb4';
 
 // 2.DSN（データべース名）
