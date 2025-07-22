@@ -20,7 +20,7 @@ class Validator
         if (empty($data['kana'])) {
             $this->error_message['kana'] = 'ふりがなが入力されていません';
         } elseif (preg_match('/[^ぁ-んー]/u', $data['kana'])) {
-            $this->error_message['kana'] = 'ひらがなで入力してください';
+            $this->error_message['kana'] = 'ひらがなを入れてください';
         } elseif (mb_strlen($data['kana']) > 20) {
             $this->error_message['kana'] = 'ふりがなは20文字以内で入力してください';
         }
