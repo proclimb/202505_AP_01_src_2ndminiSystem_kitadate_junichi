@@ -67,7 +67,7 @@ class UserAddress
                 ':prefecture'    => $data['prefecture'],
                 ':city_town'    => $data['city_town'],
                 ':building'    => $data['building'],
-                ':user_id'     => $userId
+                ':user_id'     => $data['user_id']
             ];
             $result = $stmt->execute($params);
 
