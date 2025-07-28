@@ -108,11 +108,11 @@ if (file_exists($csvFile)) {
         <h1>mini System</h1>
     </div>
     <div>
-        <h2>CSV取込完了</h2>
+        <h2>CSV取り込み完了</h2>
     </div>
     <div>
         <div>
-            <h1>CSV取込完了</h1>
+            <h1>CSV取り込み完了</h1>
             <p>
                 住所マスタを更新しました。
             </p>
