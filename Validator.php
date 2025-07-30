@@ -25,12 +25,21 @@ class Validator
             $this->error_message['kana'] = 'ふりがなは20文字以内で入力してください';
         }
 
+        $birth_year = $data['birth_year'] ?? '';
+        $birth_month = $data['birth_month'] ?? '';
+        $birth_day = $data['birth_day'] ?? '';
 
         // 生年月日
         if (empty($data['birth_year']) || empty($data['birth_month']) || empty($data['birth_day'])) {
             $this->error_message['birth_date'] = '生年月日が入力されていません';
         } elseif (!$this->isValidDate($data['birth_year'] ?? '', $data['birth_month'] ?? '', $data['birth_day'] ?? '')) {
             $this->error_message['birth_date'] = '生年月日が正しくありません';
+        } else {
+            $birth_timestamp = strtotime("{$birth_year}-{$birth_month}-{$birth_day}");
+            $now_timestamp = strtotime(date('Y-m-d'));
+            if ($birth_timestamp  >= $now_timestamp) {
+                $this->error_message['birth_date'] = '生年月日が未来です';
+            }
         }
 
         // 郵便番号
