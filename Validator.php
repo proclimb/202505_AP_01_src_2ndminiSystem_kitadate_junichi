@@ -20,26 +20,23 @@ class Validator
         if (empty($data['kana'])) {
             $this->error_message['kana'] = 'ふりがなが入力されていません';
         } elseif (preg_match('/[^ぁ-んー]/u', $data['kana'])) {
-            $this->error_message['kana'] = 'ひらがなを入れてください';
+            $this->error_message['kana'] = 'ひらがなで入力してください';
         } elseif (mb_strlen($data['kana']) > 20) {
             $this->error_message['kana'] = 'ふりがなは20文字以内で入力してください';
         }
 
-        $birth_year = $data['birth_year'] ?? '';
-        $birth_month = $data['birth_month'] ?? '';
-        $birth_day = $data['birth_day'] ?? '';
 
         // 生年月日
         if (empty($data['birth_year']) || empty($data['birth_month']) || empty($data['birth_day'])) {
             $this->error_message['birth_date'] = '生年月日が入力されていません';
         } elseif (!$this->isValidDate($data['birth_year'] ?? '', $data['birth_month'] ?? '', $data['birth_day'] ?? '')) {
             $this->error_message['birth_date'] = '生年月日が正しくありません';
-        } else {
-            $birth_timestamp = strtotime("{$birth_year}-{$birth_month}-{$birth_day}");
-            $now_timestamp = strtotime(date('Y-m-d'));
-            if ($birth_timestamp  >= $now_timestamp) {
-                $this->error_message['birth_date'] = '生年月日が未来です';
-            }
+        } elseif ($this->isFutureDate(
+            $data['birth_year'],
+            $data['birth_month'],
+            $data['birth_day']
+        )) {
+            $this->error_message['birth_date'] = '生年月日が未来です';
         }
 
         // 郵便番号
@@ -90,5 +87,13 @@ class Validator
     private function isValidDate($year, $month, $day)
     {
         return checkdate((int)$month, (int)$day, (int)$year);
+    }
+
+    // 未来の日付かチェックするメソッド
+    private function isFutureDate($year, $month, $day)
+    {
+        $inputDate = DateTime::createFromFormat('Y-m-d', "$year-$month-$day");
+        $currentDate = new DateTime('yesterday'); // 昨日までを有効にするため「昨日の日付」で比較
+        return $inputDate > $currentDate; // 未来の日付の場合に true を返す
     }
 }
