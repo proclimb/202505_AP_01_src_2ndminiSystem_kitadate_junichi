@@ -40,10 +40,21 @@ class Validator
         }
 
         // 郵便番号
-        if (empty($data['postal_code'])) {
-            $this->error_message['postal_code'] = '郵便番号が入力されていません';
-        } elseif (!preg_match('/^[0-9]{3}-[0-9]{4}$/', $data['postal_code'] ?? '')) {
-            $this->error_message['postal_code'] = '郵便番号が正しくありません';
+        // 郵便番号のチェック部分に追加してください：
+
+        $raw_postal_code = $data['postal_code'];
+        $clean_postal_code = str_replace('-', '', $raw_postal_code);
+
+        // フォーマットが正しいと判断された場合のみ、マスタ存在チェックを実施
+        if (!empty($data['postal_code'])) {
+            if (!preg_match('/^[0-9]{3}-[0-9]{4}$/', $raw_postal_code)) {
+                $this->error_message['postal_code'] = '郵便番号が正しくありません';
+            } else {
+                $master_data = $this->getPostalCodeData($clean_postal_code);
+                if (empty($master_data)) {
+                    $this->error_message['postal_code'] = '郵便番号は存在しません';
+                }
+            }
         }
 
         // 住所
@@ -95,5 +106,24 @@ class Validator
         $inputDate = DateTime::createFromFormat('Y-m-d', "$year-$month-$day");
         $currentDate = new DateTime('yesterday'); // 昨日までを有効にするため「昨日の日付」で比較
         return $inputDate > $currentDate; // 未来の日付の場合に true を返す
+    }
+    private function getPostalCodeData($postal_code)
+    {
+        $dbname = $dbname = 'minisystem_relation'; // ←ここを実際のDB名にする（例：form_system）
+        $charset = 'utf8mb4';
+        try {
+            $dsn = "mysql:host=localhost;dbname={$dbname};charset={$charset}";
+            $pdo = new PDO($dsn, 'root', 'proclimb', [
+                PDO::ATTR_ERRMODE => PDO::ERRMODE_EXCEPTION
+            ]);
+            $stmt = $pdo->prepare('SELECT * FROM address_master WHERE postal_code = :postal_code');
+            $stmt->execute([':postal_code' => $postal_code]);
+            return $stmt->fetch(PDO::FETCH_ASSOC);
+        } catch (PDOException $e) {
+            // ログファイルに書き出す、または開発時は表示する
+            // error_log($e->getMessage());
+            $this->error_message['postal_code'] = '郵便番号の照合中にエラーが発生しました';
+            return null;
+        }
     }
 }
