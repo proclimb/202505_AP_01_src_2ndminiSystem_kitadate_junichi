@@ -52,7 +52,7 @@ class Validator
             } else {
                 $master_data = $this->getPostalCodeData($clean_postal_code);
                 if (empty($master_data)) {
-                    $this->error_message['postal_code'] = '郵便番号は存在しません';
+                    $this->error_message['postal_code'] = '郵便番号が存在しません';
                 }
             }
         }
@@ -73,11 +73,11 @@ class Validator
                 $stmt->execute();
 
                 if (!$stmt->fetch()) {
-                    $this->error_message['address'] = '都道府県が存在しません';
+                    $this->error_message['address'] = '都道府県名が存在しません';
                 }
             } catch (PDOException $e) {
                 // error_log($e->getMessage());
-                $this->error_message['address'] = '都道府県が存在しません';
+                $this->error_message['address'] = '都道府県名が存在しません';
             }
         }
 
