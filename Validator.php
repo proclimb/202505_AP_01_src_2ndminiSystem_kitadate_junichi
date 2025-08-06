@@ -58,6 +58,29 @@ class Validator
         }
 
         // 住所
+        if (!empty($data['prefecture'])) {
+            $normalized_pref = mb_convert_kana(trim($data['prefecture']), 'KVas');
+
+            try {
+                $dsn = "mysql:host=localhost;dbname=minisystem_relation;charset=utf8mb4";
+                $pdo = new PDO($dsn, 'root', 'proclimb', [
+                    PDO::ATTR_ERRMODE => PDO::ERRMODE_EXCEPTION
+                ]);
+
+                // 都道府県名を完全一致で照合
+                $stmt = $pdo->prepare('SELECT 1 FROM address_master WHERE prefecture = BINARY :prefecture LIMIT 1');
+                $stmt->bindValue(':prefecture', $normalized_pref, PDO::PARAM_STR);
+                $stmt->execute();
+
+                if (!$stmt->fetch()) {
+                    $this->error_message['address'] = '都道府県が存在しません';
+                }
+            } catch (PDOException $e) {
+                // error_log($e->getMessage());
+                $this->error_message['address'] = '都道府県が存在しません';
+            }
+        }
+
         if (empty($data['prefecture']) || empty($data['city_town'])) {
             $this->error_message['address'] = '住所(都道府県もしくは市区町村・番地)が入力されていません';
         } elseif (mb_strlen($data['prefecture']) > 10) {
