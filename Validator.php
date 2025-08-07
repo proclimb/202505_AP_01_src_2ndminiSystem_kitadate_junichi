@@ -135,7 +135,7 @@ class Validator
         $dbname = $dbname = 'minisystem_relation'; // ←ここを実際のDB名にする（例：form_system）
         $charset = 'utf8mb4';
         try {
-            $dsn = "mysql:host=localhost;dbname={$dbname};charset={$charset}";
+            $dsn = $dsn = "mysql:host=localhost;dbname=minisystem_relation;charset=utf8mb4";
             $pdo = new PDO($dsn, 'root', 'proclimb', [
                 PDO::ATTR_ERRMODE => PDO::ERRMODE_EXCEPTION
             ]);
