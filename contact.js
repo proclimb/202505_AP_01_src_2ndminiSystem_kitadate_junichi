@@ -12,69 +12,69 @@ function validate() {
 
     // 3.お名前の入力をチェック
     // 3-1.必須チェック
-    if (document.edit.name.value == "") {
-        errorElement(document.edit.name, "お名前が入力されていません");
-        flag = false;
-    }
+    // if (document.edit.name.value == "") {
+    //    errorElement(document.edit.name, "お名前が入力されていません");
+    //   flag = false;
+    // }
 
     // 4.ふりがなの入力をチェック
     // 4-1.必須チェック
-    if (document.edit.kana.value == "") {
-        errorElement(document.edit.kana, "ふりがなが入力されていません");
-        flag = false;
-    } else {
-        // 4-2.ひらがなのチェック
-        if (!validateKana(document.edit.kana.value)) {
-            errorElement(document.edit.kana, "ひらがなを入れて下さい");
-            flag = false;
-        }
-    }
+    // if (document.edit.kana.value == "") {
+    //  errorElement(document.edit.kana, "ふりがなが入力されていません");
+    // flag = false;
+    //  } else {
+    // 4-2.ひらがなのチェック
+    //  if (!validateKana(document.edit.kana.value)) {
+    //  errorElement(document.edit.kana, "ひらがなを入れて下さい");
+    // flag = false;
+    // }
+    //  }
 
     // 郵便番号
-    if (document.edit.postal_code.value === "") {
-        errorElement(document.edit.postal_code, "郵便番号が入力されていません");
-        flag = false;
-    } else if (!/^\d{3}-\d{4}$/.test(document.edit.postal_code.value)) {
-        errorElement(document.edit.postal_code, "郵便番号の形式が正しくありません（例: 123-4567）");
-        flag = false;
-    }
-
+    /* if (document.edit.postal_code.value === "") {
+         errorElement(document.edit.postal_code, "郵便番号が入力されていません");
+         flag = false;
+     } else if (!/^\d{3}-\d{4}$/.test(document.edit.postal_code.value)) {
+         errorElement(document.edit.postal_code, "郵便番号の形式が正しくありません（例: 123-4567）");
+         flag = false;
+     }
+ */
     // 住所（都道府県、市区町村）
-    if (document.edit.prefecture.value === "") {
-        errorElement(document.edit.prefecture, "都道府県が入力されていません");
-        flag = false;
-    }
-    if (document.edit.city_town.value === "") {
-        errorElement(document.edit.city_town, "市区町村が入力されていません");
-        flag = false;
-    }
-
+    /* if (document.edit.prefecture.value === "") {
+         errorElement(document.edit.prefecture, "都道府県が入力されていません");
+         flag = false;
+     }
+     if (document.edit.city_town.value === "") {
+         errorElement(document.edit.city_town, "市区町村が入力されていません");
+         flag = false;
+     }
+ */
     // 6.電話番号の入力をチェック
     // 6-1.必須チェック
-    if (document.edit.tel.value == "") {
-        errorElement(document.edit.tel, "電話番号が入力されていません");
-        flag = false;
-    } else {
-        // 6-2.電話番号の長さをチェック
-        if (!validateTel(document.edit.tel.value)) {
-            errorElement(document.edit.tel, "電話番号が違います");
-            flag = false;
-        }
-    }
-
+    /* if (document.edit.tel.value == "") {
+         errorElement(document.edit.tel, "電話番号が入力されていません");
+         flag = false;
+     } else {
+         // 6-2.電話番号の長さをチェック
+         if (!validateTel(document.edit.tel.value)) {
+             errorElement(document.edit.tel, "電話番号が違います");
+             flag = false;
+         }
+     }
+ */
     // 5.メールアドレスの入力をチェック
     // 5-1.必須チェック
-    if (document.edit.email.value == "") {
-        errorElement(document.edit.email, "メールアドレスが入力されていません");
-        flag = false;
-    } else {
-        // 5-2.メールアドレスの形式をチェック
-        if (!validateMail(document.edit.email.value)) {
-            errorElement(document.edit.email, "メールアドレスが正しくありません");
-            flag = false;
-        }
-    }
-
+    /* if (document.edit.email.value == "") {
+         errorElement(document.edit.email, "メールアドレスが入力されていません");
+         flag = false;
+     } else {
+         // 5-2.メールアドレスの形式をチェック
+         if (!validateMail(document.edit.email.value)) {
+             errorElement(document.edit.email, "メールアドレスが正しくありません");
+             flag = false;
+         }
+     }
+ */
     // document1 のチェック
     var fileInput1 = document.edit.document1;
     if (fileInput1 && fileInput1.files.length > 0) {
