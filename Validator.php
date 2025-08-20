@@ -46,14 +46,14 @@ class Validator
         $clean_postal_code = str_replace('-', '', $raw_postal_code);
 
         // フォーマットが正しいと判断された場合のみ、マスタ存在チェックを実施
-        if (!empty($data['postal_code'])) {
-            if (!preg_match('/^[0-9]{3}-[0-9]{4}$/', $raw_postal_code)) {
-                $this->error_message['postal_code'] = '郵便番号が正しくありません';
-            } else {
-                $master_data = $this->getPostalCodeData($clean_postal_code);
-                if (empty($master_data)) {
-                    $this->error_message['postal_code'] = '郵便番号が存在しません';
-                }
+        if (empty($data['postal_code'])) {
+            $this->error_message['postal_code'] = '郵便番号が入力されていません';
+        } elseif (!preg_match('/^[0-9]{3}-[0-9]{4}$/', $data['postal_code'] ?? '')) {
+            $this->error_message['postal_code'] = '郵便番号が正しくありません';
+        } else {
+            $master_data = $this->getPostalCodeData($clean_postal_code);
+            if (empty($master_data)) {
+                $this->error_message['postal_code'] = '郵便番号は存在しません';
             }
         }
 
