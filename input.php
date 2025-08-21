@@ -31,7 +31,7 @@
  */
 
 //  1.DB接続情報、クラス定義の読み込み
-require_once 'Validator_prefecture.php';
+require_once 'Validator.php';
 
 // 1.セッションの開始
 session_cache_limiter('none');

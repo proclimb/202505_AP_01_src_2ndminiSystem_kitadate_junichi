@@ -1,28 +1,38 @@
 <?php
 
+/**
+ * 更新・削除画面
+ *
+ * ** 更新・削除画面は、ダッシュボード、更新・削除確認の2画面から遷移してきます
+ * * **
+ * ** 【説明】
+ * **   更新・削除では、入力チェックと画面遷移をjavascriptで行います
+ * **   そのため、登録の時とは違い、セッションを使用しないパターンのプログラムになります
+ * **
+ * ** 各画面毎の処理は以下です
+ * ** 1.DB接続情報、クラス定義をそれぞれのファイルから読み込む
+ * ** 2.DBからユーザ情報を取得する為、$_GETからID情報を取得する
+ * ** 3.ユーザ情報を取得する
+ * **   1.Userクラスをインスタスタンス化する
+ * **     ＊User(設計図)に$user(実体)を付ける
+ * **   2.メソッドを実行じユーザー情報を取得する
+ * ** 4.html を描画
+ */
+
+//  1.DB接続情報、クラス定義の読み込み
 require_once 'Db.php';
 require_once 'User.php';
-require_once 'Validator.php';
 
 // 2.ダッシュボードから送信した変数を設定
-$id = $_GET['id'] ?? $_POST['id'] ?? null;
+$id = $_GET['id'];
+
+// 3-1.Userクラスをインスタンス化
 $user = new User($pdo);
 
-// 初回表示 or エラー時の再表示
-if ($_SERVER['REQUEST_METHOD'] === 'GET') {
-    $_POST = $user->findById($id);
-    $errors = [];
-} elseif ($_SERVER['REQUEST_METHOD'] === 'POST') {
-    $validator = new Validator();
-    $errors = $validator->validate($_POST, $_FILES);
+// 3-2.UserクラスのfindById()メソッドで1件検索
+$_POST = $user->findById($id);
 
-    if (empty($errors)) {
-        // バリデーション成功 → update.php に遷移
-        header('Location: update.php');
-        exit;
-    }
-}
-
+// 4.html の描画
 ?>
 <!DOCTYPE html>
 <html lang="ja">
@@ -56,9 +66,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'GET') {
                         name="name"
                         placeholder="例）山田太郎"
                         value="<?= htmlspecialchars($_POST['name']) ?>">
-                    <?php if (!empty($errors['name'])): ?>
-                        <p class="error"><?= htmlspecialchars($errors['name']) ?></p>
-                    <?php endif; ?>
                 </div>
                 <div>
                     <label>ふりがな<span>必須</span></label>
@@ -67,9 +74,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'GET') {
                         name="kana"
                         placeholder="例）やまだたろう"
                         value="<?= htmlspecialchars($_POST['kana']) ?>">
-                    <?php if (!empty($errors['name'])): ?>
-                        <p class="error"><?= htmlspecialchars($errors['kana']) ?></p>
-                    <?php endif; ?>
                 </div>
                 <div>
                     <label>性別<span>必須</span></label>
@@ -118,90 +122,77 @@ if ($_SERVER['REQUEST_METHOD'] === 'GET') {
                         <button type="button"
                             class="postal-code-search"
                             id="searchAddressBtn">住所検索</button>
-                        <?php if (!empty($errors['name'])): ?>
-                            <p class="error"><?= htmlspecialchars($errors['postal_code']) ?></p>
-                        <?php endif; ?>
+                    </div>
+                </div>
+                <div>
+                    <label>住所<span>必須</span></label>
+                    <input
+                        type="text"
+                        name="prefecture"
+                        id="prefecture"
+                        placeholder="都道府県"
+                        value="<?= htmlspecialchars($_POST['prefecture'] ?? '') ?>">
+                    <input
+                        type="text"
+                        name="city_town"
+                        id="city_town"
+                        placeholder="市区町村・番地"
+                        value="<?= htmlspecialchars($_POST['city_town'] ?? '') ?>">
+                    <input
+                        type="text"
+                        name="building"
+                        placeholder="建物名・部屋番号  **省略可**"
+                        value="<?= htmlspecialchars($_POST['building'] ?? '') ?>">
+                </div>
+                <div>
+                    <label>電話番号<span>必須</span></label>
+                    <input
+                        type="text"
+                        name="tel"
+                        placeholder="例）000-000-0000"
+                        value="<?= htmlspecialchars($_POST['tel']) ?>">
+                </div>
+                <div>
+                    <label>メールアドレス<span>必須</span></label>
+                    <input
+                        type="text"
+                        name="email"
+                        placeholder="例）guest@example.com"
+                        value="<?= htmlspecialchars($_POST['email']) ?>">
+                </div>
+                <div>
+                    <label>本人確認書類（表）</label>
+                    <input
+                        type="file"
+                        name="document1"
+                        id="document1"
+                        accept="image/png, image/jpeg, image/jpg">
+                    <span id="filename1" class="filename-display"></span>
+                    <div class="preview-container">
+                        <img id="preview1" src="#" alt="プレビュー画像１" style="display: none; max-width: 200px; margin-top: 8px;">
+                    </div>
+                </div>
+
+                <div>
+                    <label>本人確認書類（裏）</label>
+                    <input
+                        type="file"
+                        name="document2"
+                        id="document2"
+                        accept="image/png, image/jpeg, image/jpg">
+                    <span id="filename2" class="filename-display"></span>
+                    <div class="preview-container">
+                        <img id="preview2" src="#" alt="プレビュー画像２" style="display: none; max-width: 200px; margin-top: 8px;">
                     </div>
                 </div>
             </div>
-            <div>
-                <label>住所<span>必須</span></label>
-                <input
-                    type="text"
-                    name="prefecture"
-                    id="prefecture"
-                    placeholder="都道府県"
-                    value="<?= htmlspecialchars($_POST['prefecture'] ?? '') ?>">
-                <input
-                    type="text"
-                    name="city_town"
-                    id="city_town"
-                    placeholder="市区町村・番地"
-                    value="<?= htmlspecialchars($_POST['city_town'] ?? '') ?>">
-                <input
-                    type="text"
-                    name="building"
-                    placeholder="建物名・部屋番号  **省略可**"
-                    value="<?= htmlspecialchars($_POST['building'] ?? '') ?>">
-                <?php if (!empty($errors['name'])): ?>
-                    <p class="error"><?= htmlspecialchars($errors['address']) ?></p>
-                <?php endif; ?>
-            </div>
-            <div>
-                <label>電話番号<span>必須</span></label>
-                <input
-                    type="text"
-                    name="tel"
-                    placeholder="例）000-000-0000"
-                    value="<?= htmlspecialchars($_POST['tel']) ?>">
-                <?php if (!empty($errors['name'])): ?>
-                    <p class="error"><?= htmlspecialchars($errors['tel']) ?></p>
-                <?php endif; ?>
-            </div>
-            <div>
-                <label>メールアドレス<span>必須</span></label>
-                <input
-                    type="text"
-                    name="email"
-                    placeholder="例）guest@example.com"
-                    value="<?= htmlspecialchars($_POST['email']) ?>">
-                <?php if (!empty($errors['name'])): ?>
-                    <p class="error"><?= htmlspecialchars($errors['email']) ?></p>
-                <?php endif; ?>
-            </div>
-            <div>
-                <label>本人確認書類（表）</label>
-                <input
-                    type="file"
-                    name="document1"
-                    id="document1"
-                    accept="image/png, image/jpeg, image/jpg">
-                <span id="filename1" class="filename-display"></span>
-                <div class="preview-container">
-                    <img id="preview1" src="#" alt="プレビュー画像１" style="display: none; max-width: 200px; margin-top: 8px;">
-                </div>
-            </div>
-
-            <div>
-                <label>本人確認書類（裏）</label>
-                <input
-                    type="file"
-                    name="document2"
-                    id="document2"
-                    accept="image/png, image/jpeg, image/jpg">
-                <span id="filename2" class="filename-display"></span>
-                <div class="preview-container">
-                    <img id="preview2" src="#" alt="プレビュー画像２" style="display: none; max-width: 200px; margin-top: 8px;">
-                </div>
-            </div>
-    </div>
-    <button type="button" onclick="validate()">更新</button>
-    <input type="button" value="ダッシュボードに戻る" onclick="history.back(-1)">
-    </form>
-    <form action="delete.php" method="post" name="delete">
-        <input type="hidden" name="id" value="<?php echo $_POST['id'] ?>">
-        <button type="submit">削除</button>
-    </form>
+            <button type="button" onclick="validate()">更新</button>
+            <input type="button" value="ダッシュボードに戻る" onclick="history.back(-1)">
+        </form>
+        <form action="delete.php" method="post" name="delete">
+            <input type="hidden" name="id" value="<?php echo $_POST['id'] ?>">
+            <button type="submit">削除</button>
+        </form>
     </div>
 </body>
 
