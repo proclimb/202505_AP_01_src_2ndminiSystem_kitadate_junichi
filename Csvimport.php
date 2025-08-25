@@ -27,7 +27,7 @@ if (($handle = fopen($csvFile, 'r')) !== false) {
     }
     fclose($handle);
 } else {
-    echo "<p style='color:red;'>CSV を開けませんでした。</p>";
+    echo "<p style='color:red;'>CSV を開けませんでした</p>";
     echo '<p><a href="index.php">トップに戻る</a></p>';
     exit;
 }
@@ -90,7 +90,7 @@ if (file_exists($csvFile)) {
         // 削除に失敗した場合はログを残すか、画面に出力
         error_log("Failed to delete CSV file: {$csvFile}");
         // 必要ならユーザーに通知する
-        echo "<p style='color:red;'>ファイルの削除に失敗しました。</p>";
+        echo "<p style='color:red;'>ファイルの削除に失敗しました</p>";
     }
 }
 ?>

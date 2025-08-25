@@ -22,7 +22,7 @@ if (! file_exists($csvFile)) {
 // 2) file_get_contents() で「生の CSV 文字列」を取得
 $rawCsv = file_get_contents($csvFile);
 if ($rawCsv === false) {
-    echo "<p style='color:red;'>CSV ファイルを読み込めませんでした。</p>";
+    echo "<p style='color:red;'>CSV ファイルを読み込めませんでした</p>";
     echo '<p><a href="index.php">トップに戻る</a></p>';
     exit;
 }
@@ -44,7 +44,7 @@ if (($handle = fopen($csvFile, 'r')) !== false) {
     }
     fclose($handle);
 } else {
-    echo "<p style='color:red;'>CSV をオープンできませんでした。</p>";
+    echo "<p style='color:red;'>CSV をオープンできませんでした</p>";
     echo '<p><a href="index.php">TOPに戻る</a></p>';
     exit;
 }
