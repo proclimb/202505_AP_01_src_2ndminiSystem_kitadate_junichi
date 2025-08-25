@@ -4,7 +4,6 @@ class Validator
 {
     private $error_message = [];
 
-    // 呼び出し元で使う
     public function validate($data)
     {
         $this->error_message = [];
@@ -25,27 +24,34 @@ class Validator
             $this->error_message['kana'] = 'ふりがなは20文字以内で入力してください';
         }
 
+        // 生年月日（分割入力 or 1フィールド対応）
+        $year = $month = $day = null;
 
-        // 生年月日
-        if (empty($data['birth_year']) || empty($data['birth_month']) || empty($data['birth_day'])) {
+        if (!empty($data['birth_year']) && !empty($data['birth_month']) && !empty($data['birth_day'])) {
+            // 分割入力（input.php）
+            $year  = $data['birth_year'];
+            $month = $data['birth_month'];
+            $day   = $data['birth_day'];
+        } elseif (!empty($data['birth_date'])) {
+            // 単一フィールド（edit.php）
+            $parts = explode('-', $data['birth_date']);
+            if (count($parts) === 3) {
+                [$year, $month, $day] = $parts;
+            }
+        }
+
+        if (empty($year) || empty($month) || empty($day)) {
             $this->error_message['birth_date'] = '生年月日が入力されていません';
-        } elseif (!$this->isValidDate($data['birth_year'] ?? '', $data['birth_month'] ?? '', $data['birth_day'] ?? '')) {
+        } elseif (!$this->isValidDate($year, $month, $day)) {
             $this->error_message['birth_date'] = '生年月日が正しくありません';
-        } elseif ($this->isFutureDate(
-            $data['birth_year'],
-            $data['birth_month'],
-            $data['birth_day']
-        )) {
+        } elseif ($this->isFutureDate($year, $month, $day)) {
             $this->error_message['birth_date'] = '生年月日が未来です';
         }
 
         // 郵便番号
-        // 郵便番号のチェック部分に追加してください：
-
-        $raw_postal_code = $data['postal_code'];
+        $raw_postal_code = $data['postal_code'] ?? '';
         $clean_postal_code = str_replace('-', '', $raw_postal_code);
 
-        // フォーマットが正しいと判断された場合のみ、マスタ存在チェックを実施
         if (empty($data['postal_code'])) {
             $this->error_message['postal_code'] = '郵便番号が入力されていません';
         } elseif (!preg_match('/^[0-9]{3}-[0-9]{4}$/', $data['postal_code'] ?? '')) {
@@ -67,17 +73,15 @@ class Validator
                     PDO::ATTR_ERRMODE => PDO::ERRMODE_EXCEPTION
                 ]);
 
-                // 都道府県名を完全一致で照合
                 $stmt = $pdo->prepare('SELECT 1 FROM address_master WHERE prefecture = BINARY :prefecture LIMIT 1');
                 $stmt->bindValue(':prefecture', $normalized_pref, PDO::PARAM_STR);
                 $stmt->execute();
 
                 if (!$stmt->fetch()) {
-                    $this->error_message['address'] = '都道府県名が存在しません';
+                    $this->error_message['address'] = '都道府県が存在しません';
                 }
             } catch (PDOException $e) {
-                // error_log($e->getMessage());
-                $this->error_message['address'] = '都道府県名が存在しません';
+                $this->error_message['address'] = '都道府県が存在しません';
             }
         }
 
@@ -93,7 +97,7 @@ class Validator
         if (empty($data['tel'])) {
             $this->error_message['tel'] = '電話番号が入力されていません';
         } elseif (
-            !preg_match('/^0\d{1,4}-\d{1,4}-\d{3,4}$/', $data['tel'] ?? '') ||
+            !preg_match('/^0\\d{1,4}-\\d{1,4}-\\d{3,4}$/', $data['tel']) ||
             mb_strlen($data['tel']) < 12 ||
             mb_strlen($data['tel']) > 13
         ) {
@@ -110,32 +114,27 @@ class Validator
         return empty($this->error_message);
     }
 
-
-    // エラーメッセージ取得
     public function getErrors()
     {
         return $this->error_message;
     }
 
-    // 生年月日の日付整合性チェック
     private function isValidDate($year, $month, $day)
     {
         return checkdate((int)$month, (int)$day, (int)$year);
     }
 
-    // 未来の日付かチェックするメソッド
     private function isFutureDate($year, $month, $day)
     {
         $inputDate = DateTime::createFromFormat('Y-m-d', "$year-$month-$day");
-        $currentDate = new DateTime('yesterday'); // 昨日までを有効にするため「昨日の日付」で比較
-        return $inputDate > $currentDate; // 未来の日付の場合に true を返す
+        $currentDate = new DateTime('yesterday');
+        return $inputDate > $currentDate;
     }
+
     private function getPostalCodeData($postal_code)
     {
-        $dbname = $dbname = 'minisystem_relation'; // ←ここを実際のDB名にする（例：form_system）
-        $charset = 'utf8mb4';
         try {
-            $dsn = $dsn = "mysql:host=localhost;dbname=minisystem_relation;charset=utf8mb4";
+            $dsn = "mysql:host=localhost;dbname=minisystem_relation;charset=utf8mb4";
             $pdo = new PDO($dsn, 'root', 'proclimb', [
                 PDO::ATTR_ERRMODE => PDO::ERRMODE_EXCEPTION
             ]);
@@ -143,8 +142,6 @@ class Validator
             $stmt->execute([':postal_code' => $postal_code]);
             return $stmt->fetch(PDO::FETCH_ASSOC);
         } catch (PDOException $e) {
-            // ログファイルに書き出す、または開発時は表示する
-            // error_log($e->getMessage());
             $this->error_message['postal_code'] = '郵便番号の照合中にエラーが発生しました';
             return null;
         }
