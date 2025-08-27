@@ -1,5 +1,7 @@
 <?php
 
+ini_set('display_errors', 1);
+error_reporting(E_ALL);
 /**
  * 登録画面
  *
@@ -31,6 +33,7 @@
  */
 
 //  1.DB接続情報、クラス定義の読み込み
+require_once 'Db.php';
 require_once 'Validator.php';
 
 // 1.セッションの開始
@@ -43,25 +46,39 @@ $error_message = [];
 $old = $_POST ?? [];
 
 // 3.入力項目の入力チェック
-if (!empty($_POST) && empty($_SESSION['input_data'])) {
-    $validator = new Validator();
+if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+    $validator = new Validator($pdo);
 
-    if ($validator->validate($_POST)) {
+    // 入力項目のチェック（ファイル入力がある場合は validateFiles も併用）
+    $ok = $validator->validateData('input', $_POST);
+    // $ok = $ok && $validator->validateFiles($_FILES, 'input'); // ←ファイルをチェックしたい場合だけ有効化
+
+    if ($ok) {
         $_SESSION['input_data'] = $_POST;
-        header('Location:confirm.php');
-        exit();
+        header('Location: confirm.php');
+        exit;
     } else {
-        $error_message = $validator->getErrors();
+        $error_message = $validator->getErrors() + $validator->getFileErrors();
     }
 }
 
 // 4.セッションを破棄する
-session_destroy();
+// POSTでバリデーションが通った場合は confirm.php に遷移するので、ここでは破棄しない
+if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
+    session_destroy();
+}
 
 // 5.html の描画
 // ** これ以降は、htmlの部分になります
 // ** php の部分は、入力した値を表示する時と入力エラー時のメッセージを表示する時に使用しています
 // ** html 内に、php を記載する場合は、htmlで見やすいように1行で記載する事が多いです
+?>
+<?php
+function old($key)
+{
+    global $old;
+    return htmlspecialchars($old[$key] ?? '', ENT_QUOTES, 'UTF-8');
+}
 ?>
 <!DOCTYPE html>
 <html lang="ja">
@@ -91,7 +108,7 @@ session_destroy();
                         type="text"
                         name="name"
                         placeholder="例）山田太郎"
-                        value="<?= htmlspecialchars($old['name']) ?>">
+                        value="<?= old('name') ?>">
                     <?php if (isset($error_message['name'])) : ?>
                         <div class="error-msg">
                             <?= htmlspecialchars($error_message['name']) ?></div>
@@ -103,7 +120,7 @@ session_destroy();
                         type="text"
                         name="kana"
                         placeholder="例）やまだたろう"
-                        value="<?= htmlspecialchars($old['kana']) ?>">
+                        value="<?= old('kana') ?>">
                     <?php if (isset($error_message['kana'])) : ?>
                         <div class="error-msg">
                             <?= htmlspecialchars($error_message['kana']) ?></div>
@@ -111,28 +128,25 @@ session_destroy();
                 </div>
                 <div>
                     <label>性別<span>必須</span></label>
-                    <?php $gender = $old['gender_flag'] ?? '1'; ?>
+                    <?php $gender = $old['gender'] ?? '1'; ?>
                     <label class="gender">
                         <input
                             type="radio"
                             name="gender"
-                            value='1'
-                            <?= ($old['gender_flag'] ?? '1') == '1'
-                                ? 'checked' : '' ?>>男性</label>
+                            value="1"
+                            <?= ($gender === '1') ? 'checked' : '' ?>>男性</label>
                     <label class="gender">
                         <input
                             type="radio"
                             name="gender"
-                            value='2'
-                            <?= ($old['gender_flag'] ?? '') == '2'
-                                ? 'checked' : '' ?>>女性</label>
+                            value="2"
+                            <?= ($gender === '2') ? 'checked' : '' ?>>女性</label>
                     <label class="gender">
                         <input
                             type="radio"
                             name="gender"
-                            value='3'
-                            <?= ($old['gender_flag'] ?? '') == '3'
-                                ? 'checked' : '' ?>>その他</label>
+                            value="3"
+                            <?= ($gender === '3') ? 'checked' : '' ?>>その他</label>
                 </div>
                 <div>
                     <label>生年月日<span>必須</span></label>
@@ -191,7 +205,7 @@ session_destroy();
                             name="postal_code"
                             id="postal_code"
                             placeholder="例）100-0001"
-                            value="<?= htmlspecialchars($old['postal_code'] ?? '') ?>">
+                            value="<?= old('postal_code') ?>">
                         <button type="button"
                             class="postal-code-search"
                             id="searchAddressBtn">住所検索</button>
@@ -208,18 +222,18 @@ session_destroy();
                         name="prefecture"
                         id="prefecture"
                         placeholder="都道府県"
-                        value="<?= htmlspecialchars($old['prefecture'] ?? '') ?>">
+                        value="<?= old('prefecture') ?>">
                     <input
                         type="text"
                         name="city_town"
                         id="city_town"
                         placeholder="市区町村・番地"
-                        value="<?= htmlspecialchars($old['city_town'] ?? '') ?>">
+                        value="<?= old('city_town') ?>">
                     <input
                         type="text"
                         name="building"
                         placeholder="建物名・部屋番号  **省略可**"
-                        value="<?= htmlspecialchars($old['building'] ?? '') ?>">
+                        value="<?= old('building') ?>">
                     <?php if (isset($error_message['address'])) : ?>
                         <div class="error-msg">
                             <?= htmlspecialchars($error_message['address']) ?></div>
@@ -231,10 +245,9 @@ session_destroy();
                         type="text"
                         name="tel"
                         placeholder="例）000-0000-0000"
-                        value="<?= htmlspecialchars($old['tel']) ?>">
-                    <?php if (isset($error_message['tel'])) : ?>
-                        <div class="error-msg">
-                            <?= htmlspecialchars($error_message['tel']) ?></div>
+                        value="<?= old('tel') ?>">
+                    <?php if (isset($error_message['phone'])) : ?>
+                        <div class="error-msg"><?= htmlspecialchars($error_message['phone']) ?></div>
                     <?php endif ?>
                 </div>
                 <div>
@@ -243,7 +256,7 @@ session_destroy();
                         type="text"
                         name="email"
                         placeholder="例）guest@example.com"
-                        value="<?= htmlspecialchars($old['email']) ?>">
+                        value="<?= old('email') ?>">
                     <?php if (isset($error_message['email'])) : ?>
                         <div class="error-msg">
                             <?= htmlspecialchars($error_message['email']) ?></div>

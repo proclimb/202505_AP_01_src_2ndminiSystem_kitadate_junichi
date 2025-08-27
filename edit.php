@@ -16,7 +16,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'GET') {
 
 // 更新ボタン押下時（POST）の場合
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-    if ($validator->validate($_POST)) {
+    if ($validator->validateData('edit', $_POST)) {
         // バリデーションOK → update.php に渡す
         require 'update.php';
         exit;
@@ -203,7 +203,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 </div>
             </div>
             <button type="submit">確認画面へ</button>
-            <input type="button" value="ダッシュボードに戻る" onclick="history.back(-1)">
+            <input type="button" value="ダッシュボードに戻る" onclick="location.href='dashboard.php'">
         </form>
         <form action="delete.php" method="post" name="delete">
             <input type="hidden" name="id" value="<?php echo $_POST['id'] ?>">
