@@ -215,7 +215,7 @@ class Validator
     {
         $email = trim($email);
         if (strlen($email) > 255) return false;
-        $re = '/^[A-Za-z0-9][A-Za-z0-9_.-]*@[A-Za-z0-9_.-]+(\.[A-Za-z0-9]+)+$/u';
+        $re = '/^[A-Za-z0-9][A-Za-z0-9_.+-]*@[A-Za-z0-9_.-]+(\.[A-Za-z0-9]+)+$/u';
         return (bool)preg_match($re, $email);
     }
 
