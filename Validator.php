@@ -217,8 +217,30 @@ class Validator
     private function isValidEmail($email)
     {
         $email = trim($email);
-        if (strlen($email) > 255) return false;
-        $re = '/^[A-Za-z0-9][A-Za-z0-9_.+-]*@[A-Za-z0-9_.-]+(\.[A-Za-z0-9]+)+$/u';
+
+        // 全体長チェック（RFC準拠: 254文字以内）
+        if (strlen($email) > 254) return false;
+
+        // ローカル部とドメイン部に分割
+        if (!strpos($email, '@')) return false;
+        list($local, $domain) = explode('@', $email, 2);
+
+        // ローカル部長さチェック（64文字以内）
+        if (strlen($local) > 64) return false;
+
+        // 連続ドット禁止
+        if (strpos($email, '..') !== false) return false;
+
+        // ドメインラベルがハイフンで始まる/終わる禁止
+        $labels = explode('.', $domain);
+        foreach ($labels as $label) {
+            if ($label === '' || $label[0] === '-' || substr($label, -1) === '-') {
+                return false;
+            }
+        }
+
+        // 正規表現による基本構造チェック
+        $re = '/^[A-Za-z0-9](?:[A-Za-z0-9_.+-]{0,62}[A-Za-z0-9])?@[A-Za-z0-9](?:[A-Za-z0-9-]{0,61}[A-Za-z0-9])?(?:\.[A-Za-z0-9](?:[A-Za-z0-9-]{0,61}[A-Za-z0-9])?)+$/u';
         return (bool)preg_match($re, $email);
     }
 
