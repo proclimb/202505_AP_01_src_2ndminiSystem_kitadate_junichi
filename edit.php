@@ -202,7 +202,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                     </div>
                 </div>
             </div>
-            <button type="submit">確認画面へ</button>
+            <button type="submit">更新</button>
             <input type="button" value="ダッシュボードに戻る" onclick="location.href='dashboard.php'">
         </form>
         <form action="delete.php" method="post" name="delete">
