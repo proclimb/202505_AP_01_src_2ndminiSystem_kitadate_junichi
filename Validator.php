@@ -84,16 +84,19 @@ class Validator
         $postalRaw = $t('postal_code');
         $postal7   = $this->normalizePostalCode($postalRaw);
 
-        if ($postal7 === '' || !preg_match('/^\d{7}$/', $postal7)) {
-            $this->error_message['postal_code'] = '郵便番号が正しくありません';
-        } else {
-            if (!$this->postalCodeExistsInDb($postal7)) {
-                $this->error_message['postal_code'] = '郵便番号が存在しません';
-            }
-        }
+        // 1. 未入力チェック
         if (empty($data['postal_code'])) {
             $this->error_message['postal_code'] = '郵便番号が入力されていません';
         }
+        // 2. 形式チェック（3桁-4桁）
+        elseif (!preg_match('/^[0-9]{3}-[0-9]{4}$/', $data['postal_code'])) {
+            $this->error_message['postal_code'] = '郵便番号が正しくありません';
+        }
+        // 3. DB照合
+        elseif (!$this->postalCodeExistsInDb($postal7)) {
+            $this->error_message['postal_code'] = '郵便番号が存在しません';
+        }
+
 
         /* 住所（都道府県 / 市区町村・番地（city_town or city+town）） 要件定義書・基本設計書に合わせる */
         /* $pref = $t('prefecture');
