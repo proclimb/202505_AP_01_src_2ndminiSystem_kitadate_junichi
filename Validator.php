@@ -225,10 +225,31 @@ class Validator
     private function isValidTel($tel)
     {
         $tel = trim($tel);
-        $telHalf = mb_convert_kana($tel, 'n');
-        $re1 = '/^0\d{9,10}$/';
-        $re2 = '/^0\d{1,4}-\d{1,4}-\d{3,4}$/';
-        return (bool)(preg_match($re1, $telHalf) || preg_match($re2, $telHalf));
+        $telHalf = mb_convert_kana($tel, 'n'); // 全角→半角
+        $digits = preg_replace('/\D/', '', $telHalf); // 数字だけ
+
+        // 1) 数字だけの妥当性（先頭0、10〜11桁）
+        if (!preg_match('/^0\d{9,10}$/', $digits)) {
+            return false;
+        }
+
+        // 2) ハイフンを含む場合の妥当性
+        if (strpos($telHalf, '-') !== false) {
+            // ハイフンはちょうど2個、全体文字数は12〜13
+            if (substr_count($telHalf, '-') !== 2) {
+                return false;
+            }
+            $len = strlen($telHalf);
+            if ($len < 12 || $len > 13) {
+                return false;
+            }
+            // セグメントの基本形（市外/市内/加入者の区切り）
+            if (!preg_match('/^0\d{1,4}-\d{1,4}-\d{3,4}$/', $telHalf)) {
+                return false;
+            }
+        }
+
+        return true;
     }
 
     private function normalizePostalCode($s)
