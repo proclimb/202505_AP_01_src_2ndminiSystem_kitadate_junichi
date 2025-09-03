@@ -16,7 +16,7 @@ class Validator
     private $error_message_files = [];
 
     // ファイル条件
-    const MAX_FILE_SIZE = 2097152; // 2MB
+    const MAX_FILE_SIZE = 4194304; // 4MB
     const ALLOWED_EXT   = ['png', 'jpg', 'jpeg'];
     const ALLOWED_MIME  = ['image/png', 'image/jpeg', 'image/pjpeg'];
 
@@ -190,7 +190,7 @@ class Validator
             }
 
             if (!$this->isValidFilesize($f)) {
-                $this->error_message_files[$key] = '2MB以上はアップロードできません';
+                $this->error_message_files[$key] = '4MB以上はアップロードできません';
                 continue;
             }
 
@@ -341,7 +341,7 @@ class Validator
         switch ($code) {
             case UPLOAD_ERR_INI_SIZE:
             case UPLOAD_ERR_FORM_SIZE:
-                return '2MB以上はアップロードできません';
+                return '4MB以上はアップロードできません';
             case UPLOAD_ERR_PARTIAL:
                 return 'ファイルが途中で中断されました';
             case UPLOAD_ERR_NO_TMP_DIR:

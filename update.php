@@ -34,7 +34,6 @@ $userData = [
     'email'        => $_POST['email'],
 ];
 
-
 // 2-2. 住所データも取得
 $addressData = [
     'user_id'      => $id,
@@ -43,7 +42,19 @@ $addressData = [
     'city_town'    => $_POST['city_town'],
     'building'     => $_POST['building'],
 ];
+// 2-3. メールアドレスの重複チェック（自分以外に同じメールがあるか）
+$sql = 'SELECT COUNT(*) FROM user_base WHERE email = :email AND id != :id';
+$stmt = $pdo->prepare($sql);
+$stmt->execute([
+    ':email' => $_POST['email'],
+    ':id'    => $_POST['id']
+]);
+$count = $stmt->fetchColumn();
 
+if ($count > 0) {
+    echo "このメールアドレスは既に使用されています。";
+    exit;
+}
 // 3. トランザクション開始
 try {
     $pdo->beginTransaction();
@@ -52,7 +63,6 @@ try {
     $user = new User($pdo);
     // 4. 各テーブルのupdateメソッドを呼び出し
     $user->update($id, $userData);
-
 
     $address = new UserAddress($pdo);
     $address->updateByUserId($addressData); // user_id付きのデータを渡す

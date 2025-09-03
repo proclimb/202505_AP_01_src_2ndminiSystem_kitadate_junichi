@@ -8,6 +8,7 @@ $id = $_GET['id'] ?? null;
 $user = new User($pdo);
 $validator = new Validator($pdo);
 $error_message = [];
+$error_message_files = [];
 
 // 初回表示（GET）の場合はDBからデータ取得
 if ($_SERVER['REQUEST_METHOD'] === 'GET') {
@@ -16,13 +17,17 @@ if ($_SERVER['REQUEST_METHOD'] === 'GET') {
 
 // 更新ボタン押下時（POST）の場合
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-    if ($validator->validateData('edit', $_POST)) {
-        // バリデーションOK → update.php に渡す
+    $isValidData = $validator->validateData('edit', $_POST);
+    $isValidFiles = $validator->validateFiles($_FILES, 'edit');
+
+    if ($isValidData && $isValidFiles) {
         require 'update.php';
         exit;
     } else {
-        // バリデーションNG → エラー配列取得
-        $error_message = $validator->getErrors();
+        $error_message = array_merge(
+            $validator->getErrors(),
+            $validator->getFileErrors()
+        );
     }
 }
 ?>
@@ -186,6 +191,11 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                     <span id="filename1" class="filename-display"></span>
                     <div class="preview-container">
                         <img id="preview1" src="#" alt="プレビュー画像１" style="display: none; max-width: 200px; margin-top: 8px;">
+                        <?php if (isset($error_message_files['document1'])) : ?>
+                            <div class="error-msg">
+                                <?= htmlspecialchars($error_message_files['document1']) ?>
+                            </div>
+                        <?php endif ?>
                     </div>
                 </div>
 
@@ -199,8 +209,14 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                     <span id="filename2" class="filename-display"></span>
                     <div class="preview-container">
                         <img id="preview2" src="#" alt="プレビュー画像２" style="display: none; max-width: 200px; margin-top: 8px;">
+                        <?php if (isset($error_message_files['document2'])) : ?>
+                            <div class="error-msg">
+                                <?= htmlspecialchars($error_message_files['document2']) ?>
+                            </div>
+                        <?php endif ?>
                     </div>
                 </div>
+
             </div>
             <button type="submit">更新</button>
             <input type="button" value="ダッシュボードに戻る" onclick="location.href='dashboard.php'">
