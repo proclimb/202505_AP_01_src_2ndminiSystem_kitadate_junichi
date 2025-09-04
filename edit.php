@@ -164,9 +164,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                         name="tel"
                         placeholder="例）000-000-0000"
                         value="<?= htmlspecialchars($_POST['tel']) ?>">
-                    <?php if (isset($error_message['tel'])) : ?>
-                        <div class="error-msg">
-                            <?= htmlspecialchars($error_message['tel']) ?></div>
+                    <?php if (isset($error_message['phone'])) : ?>
+                        <div class="error-msg"><?= htmlspecialchars($error_message['phone']) ?></div>
                     <?php endif ?>
                 </div>
                 <div>
