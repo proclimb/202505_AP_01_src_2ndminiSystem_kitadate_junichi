@@ -78,6 +78,41 @@ $users = $userModel->fetchUsersWithKeyword(
     <meta charset="UTF-8">
     <title>mini System</title>
     <link rel="stylesheet" href="style_new.css">
+    <style>
+        .sortable-header {
+            position: relative;
+            cursor: pointer;
+            text-decoration: underline;
+            color: #333;
+        }
+
+        .sortable-header:hover {
+            color: #0078D4;
+        }
+
+        .tooltip {
+            visibility: hidden;
+            opacity: 0;
+            position: absolute;
+            bottom: 100%;
+            left: 50%;
+            transform: translateX(-50%);
+            background-color: #333;
+            color: #fff;
+            padding: 6px 10px;
+            border-radius: 4px;
+            white-space: nowrap;
+            font-size: 12px;
+            z-index: 10;
+            transition: opacity 0.3s ease;
+        }
+
+        .sortable-header:hover .tooltip {
+            visibility: visible;
+            opacity: 1;
+        }
+    </style>
+
 </head>
 
 <body>
@@ -100,7 +135,7 @@ $users = $userModel->fetchUsersWithKeyword(
 
     <!-- 5. 検索結果件数表示（テーブルの左上へ置きたいので、幅80%・中央寄せして左寄せテキスト） -->
     <div class="result-count" style="width:80%; margin: 5px auto 0;">
-        検索結果：<strong><?= $totalCount ?></strong> 件
+        検索結果：<strong><?= $totalCount ?></strong> 件 　　　ふりがな　郵便番号　メールアドレス　でソート機能を使用できます（▲マウス左クリックで昇順／降順が切り替わります）
     </div>
 
     <!-- 6. 一覧テーブル -->
@@ -109,20 +144,23 @@ $users = $userModel->fetchUsersWithKeyword(
             <th>編集</th>
             <th>名前</th>
             <!-- ① ふりがな ソートリンク -->
-            <th>
+            <th class="sortable-header">
                 <?= sortLink('kana', 'ふりがな', $sortBy, $sortOrd, $nameKeyword) ?>
+                <span class="tooltip">この項目はソートが利用できます</span>
             </th>
             <th>性別</th>
             <th>生年月日</th>
             <!-- ② 郵便番号 ソートリンク -->
-            <th>
+            <th class="sortable-header">
                 <?= sortLink('postal_code', '郵便番号', $sortBy, $sortOrd, $nameKeyword) ?>
+                <span class="tooltip">この項目はソートが利用できます</span>
             </th>
             <th>住所</th>
             <th>電話番号</th>
             <!-- ③ メールアドレス ソートリンク -->
-            <th>
+            <th class="sortable-header">
                 <?= sortLink('email', 'メールアドレス', $sortBy, $sortOrd, $nameKeyword) ?>
+                <span class="tooltip">この項目はソートが利用できます</span>
             </th>
             <th>画像①</th>
             <th>画像②</th>

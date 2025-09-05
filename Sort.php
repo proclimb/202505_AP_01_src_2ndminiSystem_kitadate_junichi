@@ -38,7 +38,7 @@ if (isset($_GET['sort_order']) && in_array(strtolower($_GET['sort_order']), ['as
 function sortLink(string $column, string $label, ?string $currentSortBy, ?string $currentSortOrd, string $nameKeyword): string
 {
     // 今のソートキーと同じなら矢印を表示
-    $arrow = '';
+    $arrow = '▲';
     if ($currentSortBy === $column) {
         $arrow = ($currentSortOrd === 'asc') ? ' ▲' : ' ▼';
     }
