@@ -1,7 +1,7 @@
 <?php
 
-ini_set('display_errors', 1);
-error_reporting(E_ALL);
+// ini_set('display_errors', 1);
+// error_reporting(E_ALL);
 /**
  * 登録画面
  *
@@ -46,19 +46,30 @@ $error_message = [];
 $old = $_POST ?? [];
 
 // 3.入力項目の入力チェック
-if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+if (!empty($_POST) && empty($_SESSION['input_data'])) {
     $validator = new Validator($pdo);
+    // if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+    // $validator = new Validator($pdo);
 
     // 入力項目のチェック（ファイル入力がある場合は validateFiles も併用）
-    $ok = $validator->validateData('input', $_POST);
+    // $ok = $validator->validateData('input', $_POST);
     // $ok = $ok && $validator->validateFiles($_FILES, 'input'); // ←ファイルをチェックしたい場合だけ有効化
 
-    if ($ok) {
+    /* if ($ok) {
         $_SESSION['input_data'] = $_POST;
         header('Location: confirm.php');
         exit;
     } else {
         $error_message = $validator->getErrors() + $validator->getFileErrors();
+    }
+}
+*/
+    if ($validator->validateData('input', $_POST)) {
+        $_SESSION['input_data'] = $_POST;
+        header('Location:confirm.php');
+        exit();
+    } else {
+        $error_message = $validator->getErrors();
     }
 }
 
