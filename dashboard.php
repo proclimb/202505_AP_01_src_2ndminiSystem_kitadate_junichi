@@ -135,7 +135,7 @@ $users = $userModel->fetchUsersWithKeyword(
 
     <!-- 5. 検索結果件数表示（テーブルの左上へ置きたいので、幅80%・中央寄せして左寄せテキスト） -->
     <div class="result-count" style="width:80%; margin: 5px auto 0;">
-        検索結果：<strong><?= $totalCount ?></strong> 件 　　　ふりがな　郵便番号　メールアドレス　でソート機能を使用できます（▲マウス左クリックで昇順／降順が切り替わります）
+        検索結果：<strong><?= $totalCount ?></strong> 件 　　　ふりがな　郵便番号　メールアドレス　電話番号で　ソート機能を使用できます（▲マウス左クリックで昇順／降順が切り替わります）
     </div>
 
     <!-- 6. 一覧テーブル -->
@@ -156,7 +156,11 @@ $users = $userModel->fetchUsersWithKeyword(
                 <span class="tooltip">この項目はソートが利用できます</span>
             </th>
             <th>住所</th>
-            <th>電話番号</th>
+            <!-- ④ 電話番号 ソートリンク -->
+            <th class="sortable-header">
+                <?= sortLink('tel', '電話番号', $sortBy, $sortOrd, $nameKeyword) ?>
+                <span class="tooltip">この項目はソートが利用できます</span>
+            </th>
             <!-- ③ メールアドレス ソートリンク -->
             <th class="sortable-header">
                 <?= sortLink('email', 'メールアドレス', $sortBy, $sortOrd, $nameKeyword) ?>

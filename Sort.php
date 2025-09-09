@@ -9,7 +9,7 @@
 /**
  * 1. GET パラメータからソートキー・ソート順を取得・バリデーション
  */
-$allowedSortKeys = ['kana', 'postal_code', 'email'];
+$allowedSortKeys = ['kana', 'postal_code', 'email', 'tel'];
 
 // sort_by の正当性チェック
 if (isset($_GET['sort_by']) && in_array($_GET['sort_by'], $allowedSortKeys, true)) {
