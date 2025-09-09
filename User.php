@@ -270,8 +270,8 @@ class User
         }
 
         // (2) ソート 条件追加
-        //    allowed: kana, postal_code, email, tel, birth_date
-        $allowedSort = ['kana', 'postal_code', 'email', 'tel', 'birth_date'];
+        //    allowed: kana, postal_code, email, tel, birth_date, address
+        $allowedSort = ['kana', 'postal_code', 'email', 'tel', 'birth_date', 'address'];
         if ($sortBy !== null && in_array($sortBy, $allowedSort, true)) {
             // ふりがなの場合、テーブル側では u.kana カラム
             // postal_code, email は a.postal_code / u.email
@@ -286,6 +286,8 @@ class User
                 $column = 'u.tel';
             } elseif ($sortBy === 'birth_date') {
                 $column = 'u.birth_date';
+            } elseif ($sortBy === 'address') {
+                $column = "CONCAT(a.prefecture, a.city_town, a.building)";
             }
             $order = (strtolower($sortOrder) === 'desc') ? 'DESC' : 'ASC';
             $sql .= " ORDER BY {$column} {$order} ";
