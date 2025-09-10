@@ -222,7 +222,8 @@ class User
         ?string $sortBy,
         ?string $sortOrder,
         int $offset,
-        int $limit
+        int $limit,
+        ?string $genderFlag
     ): array {
         // 基本の SELECT 文（search() と同様の JOIN 構造）
         $sql = "SELECT
@@ -268,7 +269,10 @@ class User
             $sql .= " AND u.name LIKE :keyword ";
             $params[':keyword'] = '%' . trim($keyword) . '%';
         }
-
+        if ($genderFlag !== null && $genderFlag !== '') {
+            $sql .= " AND u.gender_flag = :gender ";
+            $params[':gender'] = $genderFlag;
+        }
         // (2) ソート 条件追加
         //    allowed: kana, postal_code, email, tel, birth_date, address
         $allowedSort = ['kana', 'postal_code', 'email', 'tel', 'birth_date', 'address'];
@@ -304,6 +308,10 @@ class User
         if (isset($params[':keyword'])) {
             $stmt->bindValue(':keyword', $params[':keyword'], PDO::PARAM_STR);
         }
+        if (isset($params[':gender'])) {
+            $stmt->bindValue(':gender', $params[':gender'], PDO::PARAM_INT); // gender_flag が INT型なら
+        }
+
         // バインド: LIMIT, OFFSET
         $stmt->bindValue(':lim', $limit, PDO::PARAM_INT);
         $stmt->bindValue(':off', $offset, PDO::PARAM_INT);

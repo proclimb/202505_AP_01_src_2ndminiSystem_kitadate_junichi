@@ -35,7 +35,7 @@ if (isset($_GET['sort_order']) && in_array(strtolower($_GET['sort_order']), ['as
  * @param string      $nameKeyword     現在の検索キーワード
  * @return string                     <a>タグ形式のリンク HTML
  */
-function sortLink(string $column, string $label, ?string $currentSortBy, ?string $currentSortOrd, string $nameKeyword): string
+function sortLink(string $column, string $label, ?string $currentSortBy, ?string $currentSortOrd, string $nameKeyword, ?string $genderFlag): string
 {
     // 今のソートキーと同じなら矢印を表示
     $arrow = '▲';
@@ -56,6 +56,9 @@ function sortLink(string $column, string $label, ?string $currentSortBy, ?string
         $params['sort_order'] = 'desc';
     } else {
         $params['sort_order'] = 'asc';
+    }
+    if ($genderFlag !== null && $genderFlag !== '') {
+        $params['search_gender'] = $genderFlag;
     }
     $params['sort_by'] = $column;
 
