@@ -9,7 +9,16 @@
 /**
  * 1. GET パラメータからソートキー・ソート順を取得・バリデーション
  */
-$allowedSortKeys = ['kana', 'postal_code', 'email', 'tel', 'birth_date', 'address'];
+$allowedSortKeys = [
+    'kana',
+    'postal_code',
+    'email',
+    'tel',
+    'birth_date',
+    'address',
+    'gender_flag',
+    'prefecture'
+];
 
 // sort_by の正当性チェック
 if (isset($_GET['sort_by']) && in_array($_GET['sort_by'], $allowedSortKeys, true)) {
@@ -35,8 +44,15 @@ if (isset($_GET['sort_order']) && in_array(strtolower($_GET['sort_order']), ['as
  * @param string      $nameKeyword     現在の検索キーワード
  * @return string                     <a>タグ形式のリンク HTML
  */
-function sortLink(string $column, string $label, ?string $currentSortBy, ?string $currentSortOrd, string $nameKeyword, ?string $genderFlag): string
-{
+function sortLink(
+    string $column,
+    string $label,
+    ?string $currentSortBy,
+    ?string $currentSortOrd,
+    string $nameKeyword,
+    ?string $genderFlag,
+    ?string $searchPref
+): string {
     // 今のソートキーと同じなら矢印を表示
     $arrow = '▲';
     if ($currentSortBy === $column) {
@@ -44,11 +60,19 @@ function sortLink(string $column, string $label, ?string $currentSortBy, ?string
     }
 
     // GET パラメータを構築
-    $params = [];
-    // 検索キーワードが空文字でなければ検索状態を維持
+    // 名前検索が空でなければ保持
     if ($nameKeyword !== '') {
-        $params['search_name']   = $nameKeyword;
-        $params['search_submit'] = '検索';
+        $params['search_name'] = $nameKeyword;
+    }
+
+    // 性別検索が空でなければ保持
+    if ($genderFlag !== null && $genderFlag !== '') {
+        $params['search_gender'] = $genderFlag;
+    }
+
+    // 都道府県検索が空でなければ保持
+    if ($searchPref !== null && $searchPref !== '') {
+        $params['search_pref'] = $searchPref;
     }
 
     // 同じカラムをクリックされたら "asc" ↔ "desc" をトグル
@@ -60,6 +84,7 @@ function sortLink(string $column, string $label, ?string $currentSortBy, ?string
     if ($genderFlag !== null && $genderFlag !== '') {
         $params['search_gender'] = $genderFlag;
     }
+
     $params['sort_by'] = $column;
 
     // ソート後は常に1ページ目に戻す

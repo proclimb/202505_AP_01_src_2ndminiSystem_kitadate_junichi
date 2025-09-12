@@ -30,6 +30,7 @@ require_once 'Page.php';      // ページネーション関連の処理と pagi
 // ---------------------------------------------
 $nameKeyword = '';
 $genderFlag  = '';
+$searchPref  = '';
 $sortBy      = $sortBy  ?? null;  // sort.php でセット済み
 $sortOrd     = $sortOrd ?? 'asc'; // sort.php でセット済み
 $page        = $page    ?? 1;     // page.php でセット済み
@@ -38,6 +39,7 @@ $page        = $page    ?? 1;     // page.php でセット済み
 if ($_SERVER['REQUEST_METHOD'] === 'GET' && isset($_GET['search_submit'])) {
     $nameKeyword = trim($_GET['search_name'] ?? '');
     $genderFlag  = trim($_GET['search_gender'] ?? '');
+    $searchPref = trim($_GET['search_pref'] ?? '');
     // 検索時は常に1ページ目、ソートもリセット
     $sortBy  = null;
     $sortOrd = 'asc';
@@ -46,6 +48,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'GET' && isset($_GET['search_submit'])) {
     // 検索キーがある場合のみ受け取る
     $nameKeyword = trim($_GET['search_name'] ?? '');
     $genderFlag = trim($_GET['search_gender'] ?? '');
+    $searchPref = trim($_GET['search_pref'] ?? '');
     // ソートとページは sort.php / page.php により既にセット済み
 }
 
@@ -53,7 +56,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'GET' && isset($_GET['search_submit'])) {
 // 2. ページネーション用定数・総件数数取得
 // ---------------------------------------------
 $userModel  = new User($pdo);
-$totalCount = $userModel->countUsersWithKeyword($nameKeyword, $genderFlag);
+$totalCount = $userModel->countUsersWithKeyword($nameKeyword, $genderFlag, $searchPref);
 
 // 1ページあたりの表示件数
 $limit = 10;
@@ -70,7 +73,8 @@ $users = $userModel->fetchUsersWithKeyword(
     $sortOrd,
     $offset,
     $limit,
-    $genderFlag
+    $genderFlag,
+    $searchPref
 );
 
 // 3.html の描画
@@ -127,6 +131,7 @@ $users = $userModel->fetchUsersWithKeyword(
         <h2>ダッシュボード</h2>
     </div>
     <form method="get" action="dashboard.php" class="name-search-form" style="width:80%; margin: 20px auto; display: flex; align-items: center; gap: 20px;">
+        <!-- 名前検索 -->
         <label for="search_name">名前で検索：</label>
         <input
             type="text"
@@ -135,7 +140,7 @@ $users = $userModel->fetchUsersWithKeyword(
             value="<?= htmlspecialchars($nameKeyword, ENT_QUOTES) ?>"
             placeholder="名前の一部を入力"
             style="width: 16%; min-width: 120px; height: 30px;">
-
+        <!-- 性別検索 -->
         <label for="search_gender">性別で検索：</label>
         <select name="search_gender" id="search_gender" style="min-width: 150px; height: 30px;">
             <option value="">-- 全て --</option>
@@ -143,7 +148,22 @@ $users = $userModel->fetchUsersWithKeyword(
             <option value="2" <?= ($genderFlag === '2') ? 'selected' : '' ?>>女性</option>
             <option value="3" <?= ($genderFlag === '3') ? 'selected' : '' ?>>未回答</option>
         </select>
-
+        <!-- 都道府県検索 -->
+        <label for="search_pref">都道府県で検索：</label>
+        <select name="search_pref" id="search_pref" style="min-width: 150px; height: 30px;">
+            <option value="">-- 全て --</option>
+            <?php
+            $stmt = $pdo->query("SELECT DISTINCT prefecture FROM address_master ORDER BY prefecture");
+            while ($row = $stmt->fetch(PDO::FETCH_ASSOC)):
+                $pref = $row['prefecture'];
+            ?>
+                <option value="<?= htmlspecialchars($pref, ENT_QUOTES) ?>"
+                    <?= ($searchPref === $pref) ? 'selected' : '' ?>>
+                    <?= htmlspecialchars($pref, ENT_QUOTES) ?>
+                </option>
+            <?php endwhile; ?>
+        </select>
+        <!-- 検索ボタン -->
         <input type="submit" name="search_submit" value="検索" style="margin-right: 40px;">
     </form>
 
@@ -159,33 +179,33 @@ $users = $userModel->fetchUsersWithKeyword(
             <th>名前</th>
             <!-- ① ふりがな ソートリンク -->
             <th class="sortable-header">
-                <?= sortLink('kana', 'ふりがな', $sortBy, $sortOrd, $nameKeyword, $genderFlag) ?>
+                <?= sortLink('kana', 'ふりがな', $sortBy, $sortOrd, $nameKeyword, $genderFlag, $searchPref) ?>
                 <span class="tooltip">この項目はソートが利用できます</span>
             </th>
             <th>性別</th>
             <!-- ⑤ 生年月日 ソートリンク -->
             <th class="sortable-header">
-                <?= sortLink('birth_date', '生年月日', $sortBy, $sortOrd, $nameKeyword, $genderFlag) ?>
+                <?= sortLink('birth_date', '生年月日', $sortBy, $sortOrd, $nameKeyword, $genderFlag, $searchPref) ?>
                 <span class="tooltip">この項目はソートが利用できます</span>
             </th>
             <!-- ② 郵便番号 ソートリンク -->
             <th class="sortable-header">
-                <?= sortLink('postal_code', '郵便番号', $sortBy, $sortOrd, $nameKeyword, $genderFlag) ?>
+                <?= sortLink('postal_code', '郵便番号', $sortBy, $sortOrd, $nameKeyword, $genderFlag, $searchPref) ?>
                 <span class="tooltip">この項目はソートが利用できます</span>
             </th>
             <!-- ⑥ 住所 ソートリンク -->
             <th class="sortable-header">
-                <?= sortLink('address', '住所', $sortBy, $sortOrd, $nameKeyword, $genderFlag) ?>
+                <?= sortLink('address', '住所', $sortBy, $sortOrd, $nameKeyword, $genderFlag, $searchPref) ?>
                 <span class="tooltip">この項目はソートが利用できます</span>
             </th>
             <!-- ④ 電話番号 ソートリンク -->
             <th class="sortable-header">
-                <?= sortLink('tel', '電話番号', $sortBy, $sortOrd, $nameKeyword, $genderFlag) ?>
+                <?= sortLink('tel', '電話番号', $sortBy, $sortOrd, $nameKeyword, $genderFlag, $searchPref) ?>
                 <span class="tooltip">この項目はソートが利用できます</span>
             </th>
             <!-- ③ メールアドレス ソートリンク -->
             <th class="sortable-header">
-                <?= sortLink('email', 'メールアドレス', $sortBy, $sortOrd, $nameKeyword, $genderFlag) ?>
+                <?= sortLink('email', 'メールアドレス', $sortBy, $sortOrd, $nameKeyword, $genderFlag, $searchPref) ?>
                 <span class="tooltip">この項目はソートが利用できます</span>
             </th>
             <th>画像①</th>
@@ -239,7 +259,7 @@ $users = $userModel->fetchUsersWithKeyword(
     </table>
 
     <!-- 7. ページネーション -->
-    <?= paginationLinks($page, $totalPages, $nameKeyword, $sortBy, $sortOrd, $genderFlag) ?>
+    <?= paginationLinks($page, $totalPages, $nameKeyword, $sortBy, $sortOrd, $genderFlag, $searchPref) ?>
 
     <!-- 8. 「TOPに戻る」ボタン -->
     <a href="index.php">

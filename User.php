@@ -108,7 +108,7 @@ class User
 
     // ユーザ検索(キーワード検索、全件検索)
     // ＊システム開発演習Ⅰで、キーワード検索機能は実装しない
-    public function search($keyword = '')
+    public function search($nameKeyword = '')
     {
         $sql = "SELECT
                 u.id,
@@ -149,10 +149,10 @@ class User
             WHERE u.del_flag = 0
             ";
 
-        if ($keyword) {
+        if ($nameKeyword) {
             $sql .= " AND u.name LIKE :keyword";
             $stmt = $this->pdo->prepare($sql);
-            $stmt->execute([':keyword' => "%{$keyword}%"]);
+            $stmt->execute([':keyword' => "%{$nameKeyword}%"]);
         } else {
             $stmt = $this->pdo->query($sql);
         }
@@ -166,7 +166,7 @@ class User
      * @param string|null $keyword  名前の部分一致キーワード（空文字 or null は検索なし＝全件）
      * @return int                  マッチしたレコード数
      */
-    public function countUsersWithKeyword(?string $keyword): int
+    public function countUsersWithKeyword(?string $nameKeyword): int
     {
         $sql = "SELECT COUNT(*) AS cnt
                   FROM user_base u
@@ -192,9 +192,9 @@ class User
                  WHERE u.del_flag = 0
         ";
         $params = [];
-        if ($keyword !== null && trim($keyword) !== '') {
+        if ($nameKeyword !== null && trim($nameKeyword) !== '') {
             $sql .= " AND u.name LIKE :keyword ";
-            $params[':keyword'] = '%' . trim($keyword) . '%';
+            $params[':keyword'] = '%' . trim($nameKeyword) . '%';
         }
 
         $stmt = $this->pdo->prepare($sql);
@@ -218,12 +218,13 @@ class User
      * @return array                  取得したユーザー一覧（連想配列の行リスト）
      */
     public function fetchUsersWithKeyword(
-        ?string $keyword,
+        ?string $nameKeyword,
         ?string $sortBy,
         ?string $sortOrder,
         int $offset,
         int $limit,
-        ?string $genderFlag
+        ?string $genderFlag,
+        ?string $searchPref
     ): array {
         // 基本の SELECT 文（search() と同様の JOIN 構造）
         $sql = "SELECT
@@ -265,14 +266,19 @@ class User
         $params = [];
 
         // (1) キーワード検索 条件追加
-        if ($keyword !== null && trim($keyword) !== '') {
+        if ($nameKeyword !== null && trim($nameKeyword) !== '') {
             $sql .= " AND u.name LIKE :keyword ";
-            $params[':keyword'] = '%' . trim($keyword) . '%';
+            $params[':keyword'] = '%' . trim($nameKeyword) . '%';
         }
         if ($genderFlag !== null && $genderFlag !== '') {
             $sql .= " AND u.gender_flag = :gender ";
             $params[':gender'] = $genderFlag;
         }
+        if ($searchPref !== '') {
+            $sql .= " AND a.prefecture = :prefecture ";
+            $params[':prefecture'] = $searchPref;
+        }
+
         // (2) ソート 条件追加
         //    allowed: kana, postal_code, email, tel, birth_date, address
         $allowedSort = ['kana', 'postal_code', 'email', 'tel', 'birth_date', 'address'];
@@ -311,7 +317,9 @@ class User
         if (isset($params[':gender'])) {
             $stmt->bindValue(':gender', $params[':gender'], PDO::PARAM_INT); // gender_flag が INT型なら
         }
-
+        if (isset($params[':prefecture'])) {
+            $stmt->bindValue(':prefecture', $params[':prefecture'], PDO::PARAM_STR);
+        }
         // バインド: LIMIT, OFFSET
         $stmt->bindValue(':lim', $limit, PDO::PARAM_INT);
         $stmt->bindValue(':off', $offset, PDO::PARAM_INT);

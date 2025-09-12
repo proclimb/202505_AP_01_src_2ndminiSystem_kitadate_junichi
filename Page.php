@@ -46,7 +46,7 @@ function getPaginationParams(int $totalCount, int $limit): array
  * @param string|null $sortOrd      ソート順 ("asc"|"desc")
  * @return string                  HTML の <div class="pagination">…</div> 部分
  */
-function paginationLinks(int $currentPage, int $totalPages, string $nameKeyword, ?string $sortBy, ?string $sortOrd, ?string $genderFlag): string
+function paginationLinks(int $currentPage, int $totalPages, string $nameKeyword, ?string $sortBy, ?string $sortOrd, ?string $genderFlag, ?string $searchPref): string
 {
     // １度に表示するページ番号の数（例：5）
     $pageGroupSize = 5;
@@ -60,6 +60,11 @@ function paginationLinks(int $currentPage, int $totalPages, string $nameKeyword,
     }
     if ($genderFlag !== null && $genderFlag !== '') {
         $baseParams['search_gender'] = $genderFlag;
+        $baseParams['search_submit'] = '検索';
+    }
+    if ($searchPref !== null && $searchPref !== '') {
+        $baseParams['search_pref'] = $searchPref;
+        $baseParams['search_submit'] = '検索';
     }
     if ($sortBy !== null) {
         $baseParams['sort_by']    = $sortBy;
