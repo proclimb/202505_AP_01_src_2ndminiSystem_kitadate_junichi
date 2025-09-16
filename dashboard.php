@@ -41,14 +41,17 @@ if ($_SERVER['REQUEST_METHOD'] === 'GET' && isset($_GET['search_submit'])) {
     $genderFlag  = trim($_GET['search_gender'] ?? '');
     $searchPref = trim($_GET['search_pref'] ?? '');
     // 検索時は常に1ページ目、ソートもリセット
-    $sortBy  = null;
-    $sortOrd = 'asc';
-    $page    = 1;
+    $sortBy  = $_GET['sort_by'] ?? null;
+    $sortOrd = $_GET['sort_order'] ?? 'asc';
+    $page = isset($_GET['page']) && is_numeric($_GET['page']) ? (int)$_GET['page'] : 1;
 } else {
     // 検索キーがある場合のみ受け取る
     $nameKeyword = trim($_GET['search_name'] ?? '');
     $genderFlag = trim($_GET['search_gender'] ?? '');
     $searchPref = trim($_GET['search_pref'] ?? '');
+    $page       = isset($_GET['page']) && is_numeric($_GET['page']) ? (int)$_GET['page'] : 1;
+    $sortBy     = $_GET['sort_by'] ?? null;
+    $sortOrd    = $_GET['sort_order'] ?? 'asc';
     // ソートとページは sort.php / page.php により既にセット済み
 }
 
