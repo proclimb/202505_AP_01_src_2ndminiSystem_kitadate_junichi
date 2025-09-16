@@ -166,46 +166,51 @@ class User
      * @param string|null $keyword  名前の部分一致キーワード（空文字 or null は検索なし＝全件）
      * @return int                  マッチしたレコード数
      */
-    public function countUsersWithKeyword(?string $nameKeyword): int
+    public function countUsersWithKeyword(?string $nameKeyword, ?string $genderFlag = null, ?string $searchPref = null): int
     {
         $sql = "SELECT COUNT(*) AS cnt
-                  FROM user_base u
-                  LEFT JOIN user_addresses a
-                    ON u.id = a.user_id
-                  LEFT JOIN (
-                        SELECT
-                            ud2.user_id,
-                            ud2.front_image,
-                            ud2.back_image
-                          FROM user_documents AS ud2
-                         INNER JOIN (
-                             SELECT
-                                 user_id,
-                                 MAX(created_at) AS max_created
-                             FROM user_documents
-                             GROUP BY user_id
-                         ) AS latest
-                           ON ud2.user_id = latest.user_id
-                          AND ud2.created_at = latest.max_created
-                    ) AS ud
-                    ON u.id = ud.user_id
-                 WHERE u.del_flag = 0
-        ";
+              FROM user_base u
+              LEFT JOIN user_addresses a ON u.id = a.user_id
+              LEFT JOIN (
+                    SELECT ud2.user_id, ud2.front_image, ud2.back_image
+                    FROM user_documents AS ud2
+                    INNER JOIN (
+                        SELECT user_id, MAX(created_at) AS max_created
+                        FROM user_documents
+                        GROUP BY user_id
+                    ) AS latest
+                    ON ud2.user_id = latest.user_id
+                    AND ud2.created_at = latest.max_created
+              ) AS ud ON u.id = ud.user_id
+             WHERE u.del_flag = 0";
+
         $params = [];
+
         if ($nameKeyword !== null && trim($nameKeyword) !== '') {
-            $sql .= " AND u.name LIKE :keyword ";
+            $sql .= " AND u.name LIKE :keyword";
             $params[':keyword'] = '%' . trim($nameKeyword) . '%';
         }
 
-        $stmt = $this->pdo->prepare($sql);
-        if (isset($params[':keyword'])) {
-            $stmt->bindValue(':keyword', $params[':keyword'], PDO::PARAM_STR);
+        if ($genderFlag !== null && $genderFlag !== '') {
+            $sql .= " AND u.gender_flag = :gender";
+            $params[':gender'] = $genderFlag;
         }
+
+        if ($searchPref !== null && $searchPref !== '') {
+            $sql .= " AND a.prefecture = :pref";
+            $params[':pref'] = $searchPref;
+        }
+
+        $stmt = $this->pdo->prepare($sql);
+
+        foreach ($params as $key => $val) {
+            $stmt->bindValue($key, $val, PDO::PARAM_STR);
+        }
+
         $stmt->execute();
         $row = $stmt->fetch(PDO::FETCH_ASSOC);
         return (int)$row['cnt'];
     }
-
 
     /**
      * ② キーワード検索＋ソート＋ページネーションでユーザー一覧を取得する
