@@ -75,6 +75,13 @@ function paginationLinks(int $currentPage, int $totalPages, string $nameKeyword,
     $groupStart = (int)(floor(($currentPage - 1) / $pageGroupSize) * $pageGroupSize) + 1;
     $groupEnd   = min($groupStart + $pageGroupSize - 1, $totalPages);
 
+    // 「最初へ」リンク（現在ページ > 1 のときのみ表示）
+    if ($currentPage > 1) {
+        $firstParams = array_merge($baseParams, ['page' => 1]);
+        $qs = http_build_query($firstParams, '', '&amp;');
+        $html .= "<a href=\"dashboard.php?$qs\">≪ 最初へ</a> ";
+    }
+
     // 「前へ」リンク（現在ページ > 1 のときのみ表示）
     if ($currentPage > 1) {
         $prevParams = array_merge($baseParams, ['page' => $currentPage - 1]);
@@ -99,6 +106,13 @@ function paginationLinks(int $currentPage, int $totalPages, string $nameKeyword,
         $nextParams = array_merge($baseParams, ['page' => $currentPage + 1]);
         $qs = http_build_query($nextParams, '', '&amp;');
         $html .= "<a href=\"dashboard.php?$qs\">次へ &gt;</a>";
+    }
+
+    // 「最後へ」リンク（現在ページ < 総ページ数 のときのみ表示）
+    if ($currentPage < $totalPages) {
+        $lastParams = array_merge($baseParams, ['page' => $totalPages]);
+        $qs = http_build_query($lastParams, '', '&amp;');
+        $html .= "<a href=\"dashboard.php?$qs\">最後へ ≫</a>";
     }
 
     // 総ページ数が1以下（＝ページ遷移不要）なら空文字を返す
