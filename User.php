@@ -168,6 +168,7 @@ class User
      */
     public function countUsersWithKeyword(?string $nameKeyword, ?string $genderFlag = null, ?string $searchPref = null): int
     {
+        error_log("★countUsersWithKeyword 実行確認");
         $sql = "SELECT COUNT(*) AS cnt
               FROM user_base u
               LEFT JOIN user_addresses a ON u.id = a.user_id
@@ -197,8 +198,8 @@ class User
         }
 
         if ($searchPref !== null && $searchPref !== '') {
-            $sql .= " AND a.prefecture = :pref";
-            $params[':pref'] = $searchPref;
+            $sql .= " AND a.prefecture = :prefecture";
+            $params[':prefecture'] = $searchPref;
         }
 
         $stmt = $this->pdo->prepare($sql);
@@ -279,10 +280,13 @@ class User
             $sql .= " AND u.gender_flag = :gender ";
             $params[':gender'] = $genderFlag;
         }
-        if ($searchPref !== '') {
+        if ($searchPref !== null && $searchPref !== '') {
             $sql .= " AND a.prefecture = :prefecture ";
             $params[':prefecture'] = $searchPref;
         }
+        error_log("★countUsersWithKeyword 実行確認");
+        error_log("★SQL: " . $sql);
+        error_log("★Params: " . print_r($params, true));
 
         // (2) ソート 条件追加
         //    allowed: kana, postal_code, email, tel, birth_date, address

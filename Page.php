@@ -35,91 +35,93 @@ function getPaginationParams(int $totalCount, int $limit): array
     $offset = ($page - 1) * $limit;
     return [$page, $offset, $totalPages];
 }
-
-/**
- * 3. ページネーションリンクを生成する関数
- *
- * @param int         $currentPage  現在のページ番号
- * @param int         $totalPages   総ページ数
- * @param string      $nameKeyword  検索キーワード
- * @param string|null $sortBy       ソート対象カラム
- * @param string|null $sortOrd      ソート順 ("asc"|"desc")
- * @return string                  HTML の <div class="pagination">…</div> 部分
- */
-function paginationLinks(int $currentPage, int $totalPages, string $nameKeyword, ?string $sortBy, ?string $sortOrd, ?string $genderFlag, ?string $searchPref): string
+// Page クラスに pagination デフォルト処理を追加
+class Page
 {
-    // １度に表示するページ番号の数（例：5）
-    $pageGroupSize = 5;
-    $html = '';
 
-    // ベースとなる GET パラメータを準備
-    $baseParams = [];
-    if ($nameKeyword !== '') {
-        $baseParams['search_name']   = $nameKeyword;
-        $baseParams['search_submit'] = '検索';
-    }
-    if ($genderFlag !== null && $genderFlag !== '') {
-        $baseParams['search_gender'] = $genderFlag;
-        $baseParams['search_submit'] = '検索';
-    }
-    if ($searchPref !== null && $searchPref !== '') {
-        $baseParams['search_pref'] = $searchPref;
-        $baseParams['search_submit'] = '検索';
-    }
-    if ($sortBy !== null) {
-        $baseParams['sort_by']    = $sortBy;
-        $baseParams['sort_order'] = $sortOrd;
+    public $page = 1;
+    public $per_page = 20;
+    public $total = 0;
+    public $total_pages = 1;
+
+    public function normalizePagination($pagination)
+    {
+        $this->page = isset($pagination['page']) ? max(1, (int)$pagination['page']) : 1;
+        $this->per_page = isset($pagination['per_page']) ? max(1, (int)$pagination['per_page']) : 20;
+        $this->total = isset($pagination['total']) ? max(0, (int)$pagination['total']) : 0;
+        $this->total_pages = max(1, (int)ceil($this->total / $this->per_page));
+
+        return [
+            'page' => $this->page,
+            'per_page' => $this->per_page,
+            'total' => $this->total,
+            'total_pages' => $this->total_pages
+        ];
     }
 
-    // グループ単位での開始ページ & 終了ページを計算
-    $groupStart = (int)(floor(($currentPage - 1) / $pageGroupSize) * $pageGroupSize) + 1;
-    $groupEnd   = min($groupStart + $pageGroupSize - 1, $totalPages);
+    // ページリンク描画メソッド
+    public function renderPaginationHtml($currentPage, $pageGroupSize, $totalPages, $baseParams = [])
+    {
+        $html = '';
 
-    // 「最初へ」リンク（現在ページ > 1 のときのみ表示）
-    if ($currentPage > 1) {
-        $firstParams = array_merge($baseParams, ['page' => 1]);
-        $qs = http_build_query($firstParams, '', '&amp;');
-        $html .= "<a href=\"dashboard.php?$qs\">≪ 最初へ</a> ";
-    }
+        $groupStart = (int)(floor(($currentPage - 1) / $pageGroupSize) * $pageGroupSize) + 1;
+        $groupEnd = min($groupStart + $pageGroupSize - 1, $totalPages);
 
-    // 「前へ」リンク（現在ページ > 1 のときのみ表示）
-    if ($currentPage > 1) {
-        $prevParams = array_merge($baseParams, ['page' => $currentPage - 1]);
-        $qs = http_build_query($prevParams, '', '&amp;');
-        $html .= "<a href=\"dashboard.php?$qs\">&lt; 前へ</a> ";
-    }
+        // 常時表示するアクション群
+        $defaultQs = http_build_query([], '', '&amp;');
+        $html .= '<span class="pager-actions">';
+        $html .= "<a class=\"btn\" href=\"dashboard.php?$defaultQs\">デフォルトのページに戻る</a> ";
 
-    // グループ内のページ番号リンク
-    for ($p = $groupStart; $p <= $groupEnd; $p++) {
-        if ($p === $currentPage) {
-            // カレントページは <strong> で強調
-            $html .= "<strong>$p</strong> ";
+        $keepParams = array_merge($baseParams, ['page' => 1]);
+        $keepQs = http_build_query($keepParams, '', '&amp;');
+        $html .= "<a class=\"btn primary\" href=\"dashboard.php?$keepQs\">フィルタを維持して先頭に戻る</a>";
+        $html .= '</span> ';
+
+        // 「最初へ」
+        if ($currentPage > 1) {
+            $qs = http_build_query(array_merge($baseParams, ['page' => 1]), '', '&amp;');
+            $html .= "<a href=\"dashboard.php?$qs\">≪ 最初へ</a> ";
         } else {
-            $linkParams = array_merge($baseParams, ['page' => $p]);
-            $qs = http_build_query($linkParams, '', '&amp;');
-            $html .= "<a href=\"dashboard.php?$qs\">$p</a> ";
+            $html .= "<span class=\"disabled\" aria-disabled=\"true\">≪ 最初へ</span> ";
         }
-    }
 
-    // 「次へ」リンク（現在ページ < 総ページ数 のときのみ表示）
-    if ($currentPage < $totalPages) {
-        $nextParams = array_merge($baseParams, ['page' => $currentPage + 1]);
-        $qs = http_build_query($nextParams, '', '&amp;');
-        $html .= "<a href=\"dashboard.php?$qs\">次へ &gt;</a>";
-    }
+        // 「前へ」
+        if ($currentPage > 1) {
+            $qs = http_build_query(array_merge($baseParams, ['page' => $currentPage - 1]), '', '&amp;');
+            $html .= "<a href=\"dashboard.php?$qs\">&lt; 前へ</a> ";
+        } else {
+            $html .= "<span class=\"disabled\" aria-disabled=\"true\">&lt; 前へ</span> ";
+        }
 
-    // 「最後へ」リンク（現在ページ < 総ページ数 のときのみ表示）
-    if ($currentPage < $totalPages) {
-        $lastParams = array_merge($baseParams, ['page' => $totalPages]);
-        $qs = http_build_query($lastParams, '', '&amp;');
-        $html .= "<a href=\"dashboard.php?$qs\">最後へ ≫</a>";
-    }
+        // グループ内ページ番号
+        for ($p = $groupStart; $p <= $groupEnd; $p++) {
+            if ($p === $currentPage) {
+                $html .= "<strong>" . htmlspecialchars((string)$p, ENT_QUOTES, 'UTF-8') . "</strong> ";
+            } else {
+                $qs = http_build_query(array_merge($baseParams, ['page' => $p]), '', '&amp;');
+                $html .= "<a href=\"dashboard.php?$qs\">" . htmlspecialchars((string)$p, ENT_QUOTES, 'UTF-8') . "</a> ";
+            }
+        }
 
-    // 総ページ数が1以下（＝ページ遷移不要）なら空文字を返す
-    if ($totalPages <= 1) {
-        return '';
-    }
+        // 「次へ」
+        if ($currentPage < $totalPages) {
+            $qs = http_build_query(array_merge($baseParams, ['page' => $currentPage + 1]), '', '&amp;');
+            $html .= "<a href=\"dashboard.php?$qs\">次へ &gt;</a> ";
+        } else {
+            $html .= "<span class=\"disabled\" aria-disabled=\"true\">次へ &gt;</span> ";
+        }
 
-    // HTML を <div> で囲んで返す
-    return "<div class=\"pagination\" style=\"width:80%; margin: 10px auto; text-align:center;\">$html</div>";
+        // 「最後へ」
+        if ($currentPage < $totalPages) {
+            $qs = http_build_query(array_merge($baseParams, ['page' => $totalPages]), '', '&amp;');
+            $html .= "<a href=\"dashboard.php?$qs\">最後へ ≫</a>";
+        } else {
+            $html .= "<span class=\"disabled\" aria-disabled=\"true\">最後へ ≫</span>";
+        }
+
+        // ページ情報表示（常時）
+        $html .= ' <span class="pager-info">' . htmlspecialchars("{$currentPage} / {$totalPages}", ENT_QUOTES, 'UTF-8') . '</span>';
+
+        return "<div class=\"pagination\">$html</div>";
+    }
 }

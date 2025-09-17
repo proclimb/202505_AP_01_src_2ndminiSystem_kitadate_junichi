@@ -1,24 +1,5 @@
 <?php
 
-/**
- * ダッシュボード画面
- *
- * ** ダッシュボード画面は、TOPから遷移してきます
- *
- * ** ダッシュボードで行う処理は以下です
- * ** 1.DB接続情報、クラス定義をそれぞれのファイルから読み込む
- * ** 2.ユーザ情報を取得する
- * **   1.Userクラスをインスタスタンス化する
- * **     ＊User(設計図)に$user(実体)を付ける
- * **   2.メソッドを実行しユーザー情報を取得する
- * **     ＊システム開発演習Ⅰで、キーワード検索機能は実装しない
- * ** 3.html を描画
- * **   DBから取得した結果を <table>タグを使用して表示しています
- * **   $result が、0件の場合は、表を表示しない
- * **   ユーザ情報が有る場合は、foreach を使用して検索結果をします
- * **   編集のリンクに関しては、idの値をURLに設定してGET送信で「更新・削除」へidを渡します
- */
-
 //  1.DB接続情報、クラス定義の読み込み
 require_once 'Db.php';
 require_once 'User.php';
@@ -26,43 +7,30 @@ require_once 'Sort.php';      // ソート関連の処理と sortLink() 関数�
 require_once 'Page.php';      // ページネーション関連の処理と paginationLinks() 関数を定義
 
 // ---------------------------------------------
-// 1. リクエストパラメータ取得・初期化
+// 1. リクエストパラメータ取得・初期化（POST対応）
 // ---------------------------------------------
-$nameKeyword = '';
-$genderFlag  = '';
-$searchPref  = '';
-$sortBy      = $sortBy  ?? null;  // sort.php でセット済み
-$sortOrd     = $sortOrd ?? 'asc'; // sort.php でセット済み
-$page        = $page    ?? 1;     // page.php でセット済み
+$request = $_SERVER['REQUEST_METHOD'] === 'POST' ? $_POST : $_GET;
+
+$nameKeyword = trim($request['search_name'] ?? '');
+$genderFlag  = trim($request['search_gender'] ?? '');
+$searchPref  = trim($request['search_pref'] ?? '');
+$sortBy      = $request['sort_by'] ?? null;
+$sortOrd     = $request['sort_order'] ?? 'asc';
+$page        = isset($request['page']) && is_numeric($request['page']) ? (int)$request['page'] : 1;
+
 
 // 検索フォームで「検索」ボタンが押された場合
-if ($_SERVER['REQUEST_METHOD'] === 'GET' && isset($_GET['search_submit'])) {
-    $nameKeyword = trim($_GET['search_name'] ?? '');
-    $genderFlag  = trim($_GET['search_gender'] ?? '');
-    $searchPref = trim($_GET['search_pref'] ?? '');
-    // 検索時は常に1ページ目、ソートもリセット
-    $sortBy  = $_GET['sort_by'] ?? null;
-    $sortOrd = $_GET['sort_order'] ?? 'asc';
-    $page = isset($_GET['page']) && is_numeric($_GET['page']) ? (int)$_GET['page'] : 1;
-} else {
-    // 検索キーがある場合のみ受け取る
-    $nameKeyword = trim($_GET['search_name'] ?? '');
-    $genderFlag = trim($_GET['search_gender'] ?? '');
-    $searchPref = trim($_GET['search_pref'] ?? '');
-    $page       = isset($_GET['page']) && is_numeric($_GET['page']) ? (int)$_GET['page'] : 1;
-    $sortBy     = $_GET['sort_by'] ?? null;
-    $sortOrd    = $_GET['sort_order'] ?? 'asc';
-    // ソートとページは sort.php / page.php により既にセット済み
-}
 
 // ---------------------------------------------
 // 2. ページネーション用定数・総件数数取得
 // ---------------------------------------------
 $userModel  = new User($pdo);
-$totalCount = $userModel->countUsersWithKeyword($nameKeyword, $genderFlag, $searchPref);
-
 // 1ページあたりの表示件数
 $limit = 10;
+
+// 総件数を取得（検索条件に基づく）
+$totalCount = $userModel->countUsersWithKeyword($nameKeyword, $genderFlag, $searchPref);
+
 
 // ページネーション用パラメータを取得 (update $page, $offset, $totalPages)
 list($page, $offset, $totalPages) = getPaginationParams($totalCount, $limit);
@@ -70,6 +38,7 @@ list($page, $offset, $totalPages) = getPaginationParams($totalCount, $limit);
 // ---------------------------------------------
 // 3. 実際のユーザー一覧を取得
 // ---------------------------------------------
+
 $users = $userModel->fetchUsersWithKeyword(
     $nameKeyword,
     $sortBy,
@@ -133,7 +102,7 @@ $users = $userModel->fetchUsersWithKeyword(
     <div>
         <h2>ダッシュボード</h2>
     </div>
-    <form method="get" action="dashboard.php" class="name-search-form" style="width:80%; margin: 20px auto; display: flex; align-items: center; gap: 20px;">
+    <form method="POST" action="dashboard.php" class="name-search-form" style="width:80%; margin: 20px auto; display: flex; align-items: center; gap: 20px;">
         <!-- 名前検索 -->
         <label for="search_name">名前で検索：</label>
         <input
@@ -261,13 +230,57 @@ $users = $userModel->fetchUsersWithKeyword(
         <?php endif; ?>
     </table>
 
-    <!-- 7. ページネーション -->
-    <?= paginationLinks($page, $totalPages, $nameKeyword, $sortBy, $sortOrd, $genderFlag, $searchPref) ?>
+    <div class="pagination-wrapper">
+        <div class="pagination-links">
+            <!-- ページリンクのHTML（例：<< 最初へ < 前へ ...） -->
+            <!-- 7. ページネーション -->
+            <?php
+            $pageObj = new Page();
+            $pagination = $pageObj->normalizePagination([
+                'page' => $page,
+                'per_page' => $limit,
+                'total' => $totalCount
+            ]);
 
-    <!-- 8. 「TOPに戻る」ボタン -->
-    <a href="index.php">
-        <button type="button">TOPに戻る</button>
-    </a>
+            echo $pageObj->renderPaginationHtml(
+                $pagination['page'],
+                10,
+                $pagination['total_pages'],
+                [
+                    'search_name'   => $nameKeyword,
+                    'search_gender' => $genderFlag,
+                    'search_pref'   => $searchPref,
+                    'search_submit' => '検索',
+                    'sort_by'       => $sortBy,
+                    'sort_order'    => $sortOrd
+                ],
+                'post'
+            );
+            ?>
+
+            <!-- ページリンクのすぐ右にボタン群を配置 -->
+            <div class="pager-actions-right">
+                <form method="post" action="dashboard.php" style="display:inline;">
+                    <input type="hidden" name="page" value="1">
+                    <button type="submit" class="btn small">デフォルトのページに戻る</button>
+                </form>
+
+                <form method="post" action="dashboard.php" style="display:inline;">
+                    <input type="hidden" name="search_name" value="<?= htmlspecialchars($nameKeyword, ENT_QUOTES) ?>">
+                    <input type="hidden" name="search_gender" value="<?= htmlspecialchars($genderFlag, ENT_QUOTES) ?>">
+                    <input type="hidden" name="search_pref" value="<?= htmlspecialchars($searchPref, ENT_QUOTES) ?>">
+                    <input type="hidden" name="sort_by" value="<?= htmlspecialchars($sortBy, ENT_QUOTES) ?>">
+                    <input type="hidden" name="sort_order" value="<?= htmlspecialchars($sortOrd, ENT_QUOTES) ?>">
+                    <input type="hidden" name="page" value="1">
+                    <button type="submit" class="btn small">フィルタを維持して先頭に戻る</button>
+                </form>
+            </div>
+        </div>
+
+        <!-- 8. 「TOPに戻る」ボタン -->
+        <a href="index.php">
+            <button type="button">TOPに戻る</button>
+        </a>
 </body>
 
 </html>
